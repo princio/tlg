@@ -1,0 +1,118 @@
+
+    .test
+    {
+        position: absolute;
+        visibility: hidden;
+        height: auto;
+        width: auto;
+        white-space: nowrap; /* Thanks to Herb Caudill omment */
+    }
+    .full-board {
+        font-family: "monospace";
+        white-space: pre;
+        width: 880px;
+        padding: 0 40px;
+        margin: auto;
+        border-left: 1px solid black;
+        border-right: 1px solid black;
+    }
+    .board {
+        font-family: "monospace";
+        white-space: pre;
+    }
+    .double {
+        font-size: 34px;
+        /*transform-origin: left bottom;
+        -webkit-transform-origin: 0 0;
+        -moz-transform-origin: 0 0;
+        display: inline-block;*/
+/*        transform: scale(2);
+        -webkit-transform: scale(2);
+        -moz-transform: scale(2);*/
+    }
+    .history {
+        background-color: lightgray;
+    }
+    .normal {
+        font-size: 16px;
+    }
+    .own-goal {
+        box-shadow: 0 0 0 4px black inset;
+        border-radius: 50%;
+        background-color: red;
+    }
+    .minute {
+        font-style: italic;
+    }
+    .cell {
+        display: inline-block;
+        position: relative;
+    }
+    .bold {
+        font-weight: 600;
+    }
+    .goal {
+        display: inline-block;
+        position: relative;
+        top: 4px;
+        width: 10px;
+        height: 10px;
+        box-shadow: 0 0 0 2px white inset;
+        border-radius: 50% 50%;
+        /*background-color: #6ed637;*/
+        background: radial-gradient(rgba(110, 214, 55, 1) 65%, rgba(110, 214, 55, 0) 15%);
+    }
+    .own-goal {
+        display: inline-block;
+        position: relative;
+        top: 4px;
+        width: 10px;
+        height: 10px;
+        box-shadow: 0 0 0 2px white inset;
+        border-radius: 50% 50%;
+        /*background-color: #6ed637;*/
+        background: radial-gradient(red 65%, rgba(225, 0, 0, 0) 15%);
+    }
+    .goal2  {
+        display: inline-block;
+        box-shadow: 0 0 0 1px white inset;
+        border-radius: 50% 50%;
+        width: 10px;
+        height: 10px;
+        /*background-color: #6ed637;*/
+        background: radial-gradient(rgba(110, 214, 55, 1) 65%, rgba(110, 214, 55, 0) 15%);
+    }
+    .rc {
+        border-radius: 50%;
+        background-color: red;
+        box-shadow: 0 0 0 4px black inset;
+    }
+    .yc {
+        display: inline-block;
+        position: relative;
+        right: 1px;
+        top: 1px;
+        height: 18px;
+        width: 16px;
+        margin: 2px 0 0 2px;
+        border-radius: 10%;
+        background-color: #f1ed09;
+        box-shadow: 0 0 0 2px #f0ce08 inset;
+    }
+    .navbar {
+        background-color: #04317a;
+        color: white;
+    }
+    .logo {
+        text-transform: uppercase;
+        font-weight: 800;
+    }
+    .nav-buttons {
+        width: 880px;
+        margin: auto;
+        text-align: center;
+    }
+    body {
+        padding: 0;
+        margin: 0;
+    }
