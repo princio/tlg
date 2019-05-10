@@ -54,7 +54,7 @@ function event_to_html($e, $isH) {
     $subtype = $e['subtype'];
 
     if($type === "goal") {
-        $t = '<span class="goal">  </span>';
+        $t = '<span class="goal"> </span>';
     }
     if($type === "own-goal") {
         $t = 'G-';
@@ -117,9 +117,12 @@ function event_to_html($e, $isH) {
         background-color: red;
     }
     .goal {
-        box-shadow: 0 0 0 4px black inset;
-        border-radius: 50%;
-        background-color: #00ff00;
+        box-shadow: 0 0 0 1px white inset;
+        border-radius: 50% 50%;
+        width: 10px;
+        height: 10px;
+        /*background-color: #6ed637;*/
+        background: radial-gradient(rgba(110, 214, 55, 1) 65%, rgba(110, 214, 55, 0) 15%);
     }
     .rc {
         border-radius: 50%;
