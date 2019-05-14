@@ -14,13 +14,10 @@ class Board {
     }
 
     function printRow($row) {
-        if($this->cr) {
-            $this->cr->close();
-        }
-
-        echo $row->close();
+        if(!$row->isClosed())
+            $row->close();
         
-        $this->cr = null;
+        echo $row;
     }
 
     function current() {
@@ -41,10 +38,9 @@ class Board {
     }
 
     function ww($n = 1) {
-        for($i = $n; $i >= 0; --$i) {
+        for($i = $n-1; $i >= 0; --$i) {
             echo "\n";
         }
-        $curP = 0;
     }
 
     function newrow($rowtype = "normal") {
@@ -84,14 +80,20 @@ class Row {
     private $pos;
     private $type;
     private $width = 0;
+    private $closed = false;
     private $html = '';
 
     function __construct($type = "normal") {
         $this->type = $type;
         $this->width = Board::GetWidth($type);
         $this->pos = 0;
+        $this->closed = false;
         if($type !== "normal")
-            $this->html = "<div class=\"{$type}\">";
+            $this->html = "<span class=\"{$type}\">";
+    }
+
+    function isClosed() {
+        return $this->closed;
     }
 
     static function Fast($str, $p = 0, $type = "normal") {
@@ -117,10 +119,9 @@ class Row {
             $fp = $p - $l;
             $lp = $p;
         }
-        $ws = $fp - $this->pos;
+        $ws = abs($fp - $this->pos);
         
         if($p < $this->pos) {
-            dump($this->html);
             throw new Exception("Position lesser than current position: {$p} < {$this->pos}.");
         }
 
@@ -140,10 +141,18 @@ class Row {
     }
 
     function close() {
-        $this->html .= "\n";
-        if($this->type !== "normal")
-            $this->html .= '</div>';
-        return $this->html;
+        
+        if(false === $this->isClosed()) {
+            if($this->type !== "normal") {
+                $this->html .= '</span>';
+            }
+            $this->closed = true;
+        }
+        return $this;
+    }
+
+    function __toString() {
+        return $this->html."\n";
     }
 
 }

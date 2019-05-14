@@ -16,9 +16,12 @@
         border-left: 1px solid black;
         border-right: 1px solid black;
     }
+    .half {
+        font-size: 8px;
+    }
     .double {
         font-size: 34px;
-        /*transform-origin: left bottom;
+        /*transfoVrm-origin: left bottom;
         -webkit-transform-origin: 0 0;
         -moz-transform-origin: 0 0;
         display: inline-block;*/
@@ -116,6 +119,27 @@
      /* unvisited link */
     .cover-content a:link {
         color: white;
+        font-weight: 800;
+        text-decoration: none;
+    }
+    /* visited link */
+    .cover-content a:visited {
+        color: rgb(173, 173, 173);
+        font-weight: 800;
+    }
+    /* mouse over link */
+    .cover-content a:hover {
+        color: lightblue;
+        font-weight: 800;
+    }
+    /* selected link */
+    .cover-content a:active {
+        color: white;
+        font-weight: 800;
+    } 
+     /* unvisited link */
+    .board a:link {
+        color: black;
         font-weight: 800;
         text-decoration: none;
     }

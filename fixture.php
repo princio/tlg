@@ -65,20 +65,28 @@ monoclose();*/
 
 $board = new Board();
 
-$board->printRow(Row::Fast("{$fix['date']}, {$fix['time']}: {$fix['type']}"));
+/*$board->printRow(Row::Fast("{$fix['date']}, {$fix['time']}: {$fix['type']}"));
 $board->ww(2);
 $row = new Row("double");
-$row->print($fix['home'], -20, "bold");
-//$row->print(" — ");
-$row->print($fix['away'], 23, "bold");
-$board->printRow($row);
-
-$row = new Row("double");
+$row->print($fix['home'], 0, "bold");
 $row->print($fix['home_goals'], -20, "bold");
 $row->print(" — ");
-$row->print($fix['home_goals'], 23, "bold");
+$row->print($fix['away_goals'], 23, "bold");
+$row->print($fix['away'], -44, "bold");
 $board->printRow($row);
-
+$board->ww(2);
+*/$row = new Row("double");
+$row->print($fix['home'], 0, "bold");
+$row->print($fix['away'], -44, "bold");
+$board->printRow($row);
+$board->ww(2);
+$row = new Row("double");
+$of = 20;
+$row->print($fix['home_goals'], $of, "bold");
+$row->print("-", 21, "bold");
+$row->print($fix['away_goals'], -43+$of, "bold");
+$board->printRow($row);
+$board->ww(2);
 $board->printRow(Row::Fast(wc('_', 70), 9));
 
 

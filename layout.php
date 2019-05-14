@@ -22,7 +22,7 @@
     $board->printRow(Row::Fast($title, (88 - strlen($title)) >> 1));
     ?></span><span class="cover-text"><?php
     $links_name = explode(',', "Home,Calendario,Gironi,Albo d'oro");
-    $links = explode(',', "/,/calendar,/group,/albo" );
+    $links = explode(',', "/,/calendar/11,/groups/11,/albo/11" );
     $board->ww();
     $link = '';
     for ($i = 0; $i < count($links); $i++) {
@@ -57,11 +57,6 @@ console.log(test.style.fontSize, width, height);
 
 </div>
 
-
-<div class="board">
-<span class="double">a</span>
-<span class="normal">a</span>
-</div>
 
 </body>
 </html>
