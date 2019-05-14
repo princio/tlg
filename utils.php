@@ -59,12 +59,15 @@ function event_to_html($e, &$isH) {
     $type = $e['type'];
     $subtype = $e['subtype'];
 
-    if($type === "goal" && $subtype === "normal") {
-        $t = '<span class="goal"> </span>';
-    }
-    if($type === "goal" && $subtype === "own") {
-        $isH = !$isH;
-        $t = '<span class="own-goal"> </span>';
+    if($type === "goal") {
+        if($subtype === "normal") {
+            $t = '<span class="goal"> </span>';
+        } else
+        if($subtype === "own") {
+            $isH = !$isH;
+            $t = '<span class="own-goal"> </span>';
+        }
+        $t = ($isH?' ':'').$t.($isH?'':' ');
     }
     if($type === "booking") {
         if($subtype === "yc") {

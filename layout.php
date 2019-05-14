@@ -12,12 +12,31 @@
     </style>
 </head>
 <body>
-
-<div class="board navbar"><div class="nav-buttons logo">  t  o  r  n  e  o    d  e  l  l  e    g  r  a  z  i  e </div>
-<div class="nav-buttons">  TDC  |  Home  | Calendario  |  Gironi  |  Albo d'oro </div>
+<?php $board = new Board(); ?>
+<div class="cover">
+    <div class="cover-content"><span class="cover-title"><?php
+    $title = "T  o  r  n  e  o    d  e  l  l  e    G  r  a  z  i  e";
+    //dump(strlen($title));
+    //dump(88 - strlen($title));
+    $board->ww();
+    $board->printRow(Row::Fast($title, (88 - strlen($title)) >> 1));
+    ?></span><span class="cover-text"><?php
+    $links_name = explode(',', "Home,Calendario,Gironi,Albo d'oro");
+    $links = explode(',', "/,/calendar,/group,/albo" );
+    $board->ww();
+    $link = '';
+    for ($i = 0; $i < count($links); $i++) {
+        $link .= sprintf("<a href=\"%s\">%s</a> | ", $links[$i], $links_name[$i]);
+    }
+    $link = substr($link, 0, -3);
+    $board->printRow(Row::Fast($link, (88 - Board::notHtmlLen($link)) >> 1));
+    ?></span>
+    </div>
 </div>
+<div class="board">
 
-<div class="full-board"><?php echo $body;?></div>
+    <?php echo $body; ?>
+</div>
 
 <span id="Test" class="test normal">a</span>
 <span id="Test2" class="test double">a</span>

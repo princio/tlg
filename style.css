@@ -7,18 +7,14 @@
         width: auto;
         white-space: nowrap; /* Thanks to Herb Caudill omment */
     }
-    .full-board {
-        font-family: "monospace";
+    .board {
         white-space: pre;
+        font-family: "monospace";
         width: 880px;
         padding: 0 40px;
         margin: auto;
         border-left: 1px solid black;
         border-right: 1px solid black;
-    }
-    .board {
-        font-family: "monospace";
-        white-space: pre;
     }
     .double {
         font-size: 34px;
@@ -94,23 +90,53 @@
         top: 1px;
         height: 18px;
         width: 16px;
-        margin: 2px 0 0 2px;
+        margin: 0 2px 0 2px;
         border-radius: 10%;
         background-color: #f1ed09;
         box-shadow: 0 0 0 2px #f0ce08 inset;
     }
-    .navbar {
+    .cover {
         background-color: #04317a;
         color: white;
+        width: 100%;
     }
+    .cover-content {
+        width: 880px;
+        padding: 0 40px;
+        margin: auto;
+        font-family: 'Courier New', Courier, monospace;
+        white-space: pre;
+        border-left: 1px solid white;
+        border-right: 1px solid white;
+    }
+    .cover-title {
+        font-weight: bold;
+        text-transform: capitalize;
+    }
+     /* unvisited link */
+    .cover-content a:link {
+        color: white;
+        font-weight: 800;
+        text-decoration: none;
+    }
+    /* visited link */
+    .cover-content a:visited {
+        color: rgb(173, 173, 173);
+        font-weight: 800;
+    }
+    /* mouse over link */
+    .cover-content a:hover {
+        color: lightblue;
+        font-weight: 800;
+    }
+    /* selected link */
+    .cover-content a:active {
+        color: white;
+        font-weight: 800;
+    } 
     .logo {
         text-transform: uppercase;
         font-weight: 800;
-    }
-    .nav-buttons {
-        width: 880px;
-        margin: auto;
-        text-align: center;
     }
     body {
         padding: 0;

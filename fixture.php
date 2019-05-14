@@ -1,6 +1,7 @@
 <?php
 
 require './dumper/autoload.php';
+require_once './Board.php';
 require_once 'utils.php'
 ?>
 
@@ -56,70 +57,66 @@ $evt_sel = $new->prepare($sql);
 $evt_sel->execute([ $page_id ]);
 $evts = $evt_sel->fetchAll(PDO::FETCH_ASSOC);
 
-echo '<div class="board">';
-
 /*monoopen("double");
 emono("%20s", $fix['home'].sprintf("  %2s", $fix['home_goals']), [ "class" => "" ]);
 ews(3);
 emono("%-20s", sprintf("%2s  ", $fix['away_goals']).'  '.$fix['away'], [ "class" => "bold" ]);
 monoclose();*/
-monoopen();
-echo "{$fix['date']}, {$fix['time']}: {$fix['type']}";
-eww(2);
-monoclose();
-monoopen("double");
-emono("%20s", $fix['home'], [ "class" => "bold" ]);
-emono("%s", "   ");
-emono("%-20s", $fix['away'], [ "class" => "bold" ]);
-eww();
-emono("%20s", $fix['home_goals'], [ "class" => "bold" ]);
-emono("%s", " — ");
-emono("%-20s", $fix['away_goals'], [ "class" => "bold" ]);
-monoclose();
-eww();
-ews(9); ewc('_', 70); eww(); ews(42); echo '··'; ews(42);
+
+$board = new Board();
+
+$board->printRow(Row::Fast("{$fix['date']}, {$fix['time']}: {$fix['type']}"));
+$board->ww(2);
+$row = new Row("double");
+$row->print($fix['home'], -20, "bold");
+//$row->print(" — ");
+$row->print($fix['away'], 23, "bold");
+$board->printRow($row);
+
+$row = new Row("double");
+$row->print($fix['home_goals'], -20, "bold");
+$row->print(" — ");
+$row->print($fix['home_goals'], 23, "bold");
+$board->printRow($row);
+
+$board->printRow(Row::Fast(wc('_', 70), 9));
+
 
 foreach ($evts as $e) {
-    monoopen();
+    $row = new Row();
     $a = $apps[$e['app_id']];
     $isH = $a['team_id'] === $fix['home_team_id'];
     $ee = event_to_html($e, $isH);
     if($isH) {
-        emono("%40s  ··", $a['name'] . ' ' . $a['surname'] . '  ' . $ee);
-    } else {
-        ews(40);
-        emono("%s", "  ··  ");
-        
-        emono("%-40s", $ee . '  ' . $a['name'] . ' ' . $a['surname']);
+        $row->print("{$a['name']} {$a['surname']} {$ee}", -40);
     }
-    eww();
-    monoclose();
+    $row->print("  ··  ", 40);
+    if(!$isH) {
+        $row->print("{$ee} {$a['name']} {$a['surname']}", 46);
+    }
+    $board->printRow($row);
 }
-ews(9); ewc('_', 70);
-eww(7);
+$board->printRow(Row::Fast(wc('‾', 70), 9));
+
+$board->ww(5);
 
 $ha = array_values($ha);
 $aa = array_values($aa);
 
 for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
-    monoopen();
+    $row1 = new Row();
+    $row2 = new Row();
     if($i < count($ha)) {
-        emono("%-{$name_max}s", $ha[$i]['name']);
-        ews();
-        emono("%-{$surname_max}s", $ha[$i]['surname']);
-        ews(43 - $name_max - $surname_max);
-    }
-    else {
-        ews(44);
+        $row1->print($ha[$i]['name']);
+        $row2->print($ha[$i]['surname']);
     }
     if($i < count($aa)) {
-        ews(43 - $name_max - $surname_max);
-        emono("%{$surname_max}s", $aa[$i]['surname']);
-        ews();
-        emono("%{$name_max}s", $aa[$i]['name']);
+        $row1->print($aa[$i]['name'], -88);
+        $row2->print($aa[$i]['surname'], -88);
     }
-    eww();
-    monoclose();
+    $board->printRow($row1);
+    $board->printRow($row2);
+    $board->ww();
 }
 
 ?>
