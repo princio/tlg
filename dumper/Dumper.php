@@ -107,7 +107,6 @@ class Dumper
 		echo "var a = ". $du . ";";
 		echo "console.log(b, a);";
 		echo "</script>";*/
-		return;
 		if (!$this->usage) {
 			echo '<style type="text/css">';
 			echo file_get_contents(

@@ -83,10 +83,13 @@ function event_to_html($e, &$isH) {
             $t = '<span style="background-color: red;">  </span>';
         }
     }
+    $m = '';
+    if($e['minute'])
+        $m = sprintf("<span class=\"minute\">%3s</span>", $e['minute'].'\'');
     if($isH) {
-        return $t . sprintf("<span class=\"minute\">%3s</span>", $e['minute'].'\'');
+        return $t . $m;
     } else {
-        return sprintf("<span class=\"minute\">%3s</span>", $e['minute'].'\'') . $t;
+        return $m . $t;
     }
 }
 function righello($n=8) {

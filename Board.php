@@ -85,6 +85,7 @@ class Row {
     private $text = '';
     private $slices = [];
     private $encloser;
+    public $href = '';
 
     function __construct($type = "normal") {
         $this->type = $type;
@@ -108,11 +109,11 @@ class Row {
     function setPos($pos) {
         if(gettype($pos) === "integer" && $pos >= 0 && $pos <= 88) {
             $l = $pos - $this->pos;
-            if($l > 0 && mb_strlen($this->text) < $l) {
-                $this->text .= str_repeat(' ', abs($pos - $this->pos));
+            if($l > 0 && mb_strlen($this->text) < $pos) {
+                $this->text .= str_repeat(' ', $l);
             }
             $this->pos = $pos;
-            //dump($this->pos);
+            //dump("\n".$this->text."|\n$l\n".mb_strlen($this->text)."\n".$this->pos);
         }
         else {
             throw new Exception("Row: wrong pos.");
@@ -179,18 +180,18 @@ class Row {
             $this->slices[] = new Slice($mb - $hl, $html);
 
 
-            dump(righello()
-            ."\n$str\n"
-            .strip_tags($str)."\n"
-            .pidx($mb-$hl, "mb-hl")."\n"
-            .pidx($p, "p_html")."\n"
-            .pidx($mb, "mb")."\n"
-            ."|$t|\n"
-            ."|$ss|\n"
-            .mb_strlen($ss)."\n"
-            ."$html\n"
-            .mb_strlen($html)."\n"
-            .mb_strlen($t));
+            // dump(righello()
+            // ."\n$str\n"
+            // .strip_tags($str)."\n"
+            // .pidx($mb-$hl, "mb-hl")."\n"
+            // .pidx($p, "p_html")."\n"
+            // .pidx($mb, "mb")."\n"
+            // ."|$t|\n"
+            // ."|$ss|\n"
+            // .mb_strlen($ss)."\n"
+            // ."$html\n"
+            // .mb_strlen($html)."\n"
+            // .mb_strlen($t));
 
 
             $hl += mb_strlen($html) - mb_strlen($t);
@@ -233,6 +234,7 @@ class Row {
         else {
             $t2 = $t;
         }
+        if($this->type === "link") $t2 = "<a href=\"{$this->href}\">{$t2}</a>";
         if($this->type) $t2 = "<span class=\"{$this->type}\">{$t2}</span>";
 
         return $t2."\n";

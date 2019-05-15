@@ -41,10 +41,9 @@ foreach ($fixs as $f) {
     $an = $f['aname'];
     $hn = count($hn) > 20 ? substr($f['hname'], 0, 17).'...' : $hn;
     $an = count($an) > 20 ? substr($f['hname'], 0, 17).'...' : $an;
-    $row1 = new Row();
+    $row1 = new Row("link");
+    $row1->href = "/fixture/{$f['id']}";
 
-    $row1->print("<a href=\"/fixture/{$f['id']}\">");
-    
     $row1->print($d->format("H:i"), 5);
 
     $row1->print($hn, 15);

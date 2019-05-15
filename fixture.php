@@ -109,6 +109,7 @@ foreach ($evts as $e) {
         $a['evts'] = [];
     }
     $a['evts'][] = $e;
+
 }
 
 $board->printRow(Row::Fast(wc('‾', 70), 9));
@@ -123,14 +124,15 @@ $mmmax = max($name_max, $surname_max);
 for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
     $row1 = new Row();
     $row2 = new Row();
+    $row3 = new Row();
     if($i < count($ha)) {
         $row1->print($ha[$i]['name']);
         $row2->print($ha[$i]['surname']);
         $a = $apps[$ha[$i]['id']];
         if(array_key_exists('evts', $a)) {
-            $row1->setPos($mmmax);
+            //$row1->setPos($mmmax);
             foreach ($apps[$ha[$i]['id']]['evts'] as $e) {
-                $row1->print(event_to_html($e, $null));
+                $row3->print(event_to_html($e, $null));
             }
         }
     }
@@ -138,17 +140,18 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
         $a = $apps[$aa[$i]['id']];
         if(array_key_exists('evts', $a)) {
             $es = $apps[$aa[$i]['id']]['evts'];
-            $row1->setPos(88-$mmmax-5*count($es));
+            $row3->setPos(88/* - $mmmax*/ -1 - 5*(-1+count($es)));
             for ($j = count($es) - 1; $j >= 0; $j--) {
-                $row1->print(event_to_html($es[$j], $null));
+                $row3->print(event_to_html($es[$j], $null));
             }
         }
-            $row1->print($aa[$i]['name'], -88);
-            $row2->print($aa[$i]['surname'], -88);
+        $row1->print($aa[$i]['name'], -88);
+        $row2->print($aa[$i]['surname'], -88);
     }
     $board->printRow($row1);
     $board->printRow($row2);
-    $board->ww();
+    $board->printRow($row3);
+    $board->ww(3);
 }
 
 ?>
