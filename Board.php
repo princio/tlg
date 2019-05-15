@@ -173,24 +173,27 @@ class Row {
 
             $p = $matches[0][$i][1];
             $ss = substr($str, 0, $p);
-            $mb = $p -(strlen($ss) - mb_strlen($ss));
+            $mb = 1+ $p -(strlen($ss) - mb_strlen($ss));
 
 
             $this->slices[] = new Slice($mb - $hl, $html);
 
 
-            /*dump(righello()
+            dump(righello()
             ."\n$str\n"
+            .strip_tags($str)."\n"
+            .pidx($mb-$hl, "mb-hl")."\n"
             .pidx($p, "p_html")."\n"
             .pidx($mb, "mb")."\n"
-            .pidx($hl, "hl")."\n"
             ."|$t|\n"
             ."|$ss|\n"
             .mb_strlen($ss)."\n"
             ."$html\n"
             .mb_strlen($html)."\n"
             .mb_strlen($t));
-            $hl += mb_strlen($html) - mb_strlen($t);;*/
+
+
+            $hl += mb_strlen($html) - mb_strlen($t);
         }
 
         $this->text = strip_tags($str);
