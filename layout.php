@@ -34,26 +34,8 @@
     </div>
 </div>
 <div class="board">
-
     <?php echo $body; ?>
 </div>
-
-<span id="Test" class="test normal">a</span>
-<span id="Test2" class="test double">a</span>
-
-
-<script>
-var test = document.getElementById("Test");
-var height = (test.clientHeight + 1) + "px";
-var width = (test.clientWidth + 1) + "px"
-console.log(test.style.fontSize + ": " + width + "," + height);
-
-test = document.getElementById("Test2");
-height = (test.clientHeight + 1) + "px";
-width = (test.clientWidth + 1) + "px"
-console.log(test.style.fontSize, width, height);
-</script>
-
 
 </div>
 

@@ -43,6 +43,7 @@ $aa = [];
 foreach ($_apps as $a) {
     $id = array_shift($a);
     $apps[$id] = $a;
+    $a['id'] = $id;
     if($a['team_id'] === $fix['home_team_id']) {
         $ha[$id] = $a;
     } else {
@@ -81,7 +82,7 @@ $row->print($fix['away'], -44, "bold");
 $board->printRow($row);
 $board->ww(2);
 $row = new Row("double");
-$of = 20;
+$of = 18;
 $row->print($fix['home_goals'], $of, "bold");
 $row->print("-", 21, "bold");
 $row->print($fix['away_goals'], -43+$of, "bold");
@@ -92,7 +93,7 @@ $board->printRow(Row::Fast(wc('_', 70), 9));
 
 foreach ($evts as $e) {
     $row = new Row();
-    $a = $apps[$e['app_id']];
+    $a = &$apps[$e['app_id']];
     $isH = $a['team_id'] === $fix['home_team_id'];
     $ee = event_to_html($e, $isH);
     if($isH) {
@@ -103,7 +104,13 @@ foreach ($evts as $e) {
         $row->print("{$ee} {$a['name']} {$a['surname']}", 46);
     }
     $board->printRow($row);
+
+    if(!array_key_exists('evts', $a)) {
+        $a['evts'] = [];
+    }
+    $a['evts'][] = $e;
 }
+
 $board->printRow(Row::Fast(wc('‾', 70), 9));
 
 $board->ww(5);
@@ -111,16 +118,31 @@ $board->ww(5);
 $ha = array_values($ha);
 $aa = array_values($aa);
 
+$mmmax = max($name_max, $surname_max);
 for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
     $row1 = new Row();
     $row2 = new Row();
     if($i < count($ha)) {
         $row1->print($ha[$i]['name']);
         $row2->print($ha[$i]['surname']);
+        $a = $apps[$ha[$i]['id']];
+        if(array_key_exists('evts', $a)) {
+            $row1->setPos($mmmax);
+            foreach ($apps[$ha[$i]['id']]['evts'] as $e) {
+                $row1->print(event_to_html($e, $null));
+            }
+        }
     }
     if($i < count($aa)) {
         $row1->print($aa[$i]['name'], -88);
         $row2->print($aa[$i]['surname'], -88);
+        $a = $apps[$aa[$i]['id']];
+        if(array_key_exists('evts', $a)) {
+            $row1->setPos($mmmax);
+            foreach ($apps[$ha[$i]['id']]['evts'] as $e) {
+                $row1->print(event_to_html($e, $null));
+            }
+        }
     }
     $board->printRow($row1);
     $board->printRow($row2);

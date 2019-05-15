@@ -82,14 +82,15 @@ class Row {
     private $width = 0;
     private $closed = false;
     private $html = '';
+    private $text = '';
+    private $slices = [];
+    private $encloser;
 
     function __construct($type = "normal") {
         $this->type = $type;
         $this->width = Board::GetWidth($type);
         $this->pos = 0;
         $this->closed = false;
-        if($type !== "normal")
-            $this->html = "<span class=\"{$type}\">";
     }
 
     function isClosed() {
@@ -102,8 +103,23 @@ class Row {
         return $row;
     }
 
+    function getPos() { return $this->pos; }
+
+    function setPos($pos) {
+        if(gettype($pos) === "integer" && $pos >= 0 && $pos <= 88) {
+            $this->pos = $pos;
+        }
+        else {
+            throw new Exception("Row: wrong pos.");
+        }
+    }
+
+    function incr($str, $i, $style) {
+        $this->print($str, $this->pos + $i, $style = '');
+    }
+
     function print($str, $p = 0, $style = '') {
-        $l = Board::notHtmlLen($str);
+        $l = mb_strlen(strip_tags($str));
 
         if($p === 0) {
             $p = $this->pos;
@@ -119,24 +135,38 @@ class Row {
             $fp = $p - $l;
             $lp = $p;
         }
+
         $ws = abs($fp - $this->pos);
-        
-        if($p < $this->pos) {
-            throw new Exception("Position lesser than current position: {$p} < {$this->pos}.");
-        }
+
+        $slices = [];
+        $t = preg_replace_callback('~<(.*?)>(.*?)</(\w+)>~', function($matches) use ($fp, $str, &$slices) {
+            $nh_str = strip_tags($str);
+            $p = mb_strpos($nh_str, $matches[2], 0, "UTF-8");
+
+            array_shift($matches);
+
+            $s = new Slice($p, $matches);
+
+            $slices[] = $s;
+
+            return $s->text;            
+        }, $str);
+
+        $this->slices[$fp] = $slices;
+
 
         if($fp > $this->width) {
-            throw new Exception("Position greater than line width: {$first_pos} > {$this->width}.");
+            throw new Exception("Position greater than line width: {$fp} > {$this->width}.");
         }
         if($lp > $this->width) {
-            throw new Exception("Position + string length greater than line width: {$last_pos} > {$this->width}.");
+            throw new Exception("Position + string length greater than line width: {$lp} > {$this->width}.");
         }
 
-        if($style)
-            $str = "<span class=\"{$style}\">{$str}</span>";
+        if($style) {
+            $this->styles[] = [ $this->pos, iconv_strlen($str), "span", $style ];
+        }
 
-        $this->html .= str_repeat(' ', $ws) . $str;
-
+        $this->text .= str_repeat(' ', $ws) . $t;
         $this->pos = $lp;
     }
 
@@ -152,7 +182,63 @@ class Row {
     }
 
     function __toString() {
-        return $this->html."\n";
+
+        $t = $this->text;
+        $t2 = '';
+        $p0 = 0;
+
+        foreach($this->slices as $fp => $sls) {
+            foreach ($sls as $s) {
+                $p1 = $fp + $s->p;
+                
+                $t2 .= substr($t, $p0, $p1 - $p0) . $s;
+
+                $p0 = $p1 + $s->getL();
+            }
+        }
+
+        if($this->type) $t2 = "<span class=\"{$this->type}\">{$t2}</span>";
+
+        return $t2."\n";
     }
 
+}
+
+
+class Slice {
+
+    public $p = 0;
+    public $text = '';
+    public $atts = [];
+    public $tag;
+    public $l;
+
+    function __construct($p, $three) {
+        $this->p = $p;
+
+        $tag_whole = $three[0];
+        
+        $this->text = $three[1];
+        $tag_end = $three[2];
+        preg_match('~^\s*(\w+)\s*~', $tag_whole, $mtag);
+        preg_match_all('~(\w+)="([^"]+)"~', $tag_whole, $matts);
+        $this->tag = $mtag[1];
+        array_shift($matts);
+        
+        $this->atts = $matts;
+    }
+
+    function getL() { return mb_strlen($this->text); }
+    
+    function __toString() {
+        $h = "<{$this->tag}";
+
+        for($i=0; $i<count($this->atts[0]); $i++) {
+            $h .= ' '.$this->atts[0][$i]."=\"". $this->atts[1][$i].'"';
+        }
+
+        $h .= ">".$this->text."</{$this->tag}>";
+
+        return $h;
+    }
 }

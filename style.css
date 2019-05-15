@@ -109,8 +109,6 @@
         margin: auto;
         font-family: 'Courier New', Courier, monospace;
         white-space: pre;
-        border-left: 1px solid white;
-        border-right: 1px solid white;
     }
     .cover-title {
         font-weight: bold;
