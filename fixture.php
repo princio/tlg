@@ -101,7 +101,7 @@ foreach ($evts as $e) {
     }
     $row->print("  ··  ", 40);
     if(!$isH) {
-        $row->print("{$ee} {$a['name']} {$a['surname']}", 46);
+        $row->print("{$ee} {$a['name']} {$a['surname']}");
     }
     $board->printRow($row);
 

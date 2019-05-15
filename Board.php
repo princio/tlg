@@ -139,20 +139,39 @@ class Row {
         $ws = abs($fp - $this->pos);
 
         $slices = [];
-        $t = preg_replace_callback('~<(.*?)>(.*?)</(\w+)>~', function($matches) use ($fp, $str, &$slices) {
-            $nh_str = strip_tags($str);
-            $p = mb_strpos($nh_str, $matches[2], 0, "UTF-8");
+        $html = $str;
+        $text = strip_tags($str);
+        $ph_ss = 0;
+        $pt = 0;
+        $t = preg_replace_callback('~<(.*?)>(.*?)</(\w+)>~', function($matches) use ($fp, &$pt, &$ph_ss, &$str, &$text, &$slices) {
 
-            array_shift($matches);
+            $slice = mb_substr($str, $ph_ss);
+            $p = mb_strpos($slice, $matches[0]);
 
-            $s = new Slice($p, $matches);
+            $pt += $p; // inizio html nel testo_senza_html
+            $s = new Slice($pt, $matches);
+            $pt += $s->getL(); //fine html nel testo_senza_html
+
+            /*dump(sprintf("\n        %s\n%2d,%2d  #%s\n%2d,%2d  #%s\n%2d,%2d  #%s\n%s\n%s",
+            str_repeat('_123456789', 7),
+                    $ph_ss, mb_strlen($slice), hsc($slice),
+                    $p, mb_strlen($matches[0]), hsc($matches[0]),
+                    $pt - $s->getL(), $s->getL(), $text,
+                    $matches[2],
+                $s->text));*/
+
+            $ph_ss += $p + mb_strlen($matches[0]); // da dove iniziare per eliminare l'html già elaborato
 
             $slices[] = $s;
+
+            //$html = mb_substr($html, $p_html + mb_strlen($matches[0]));
 
             return $s->text;            
         }, $str);
 
-        $this->slices[$fp] = $slices;
+        /*dump($t);
+        dump($slices);*/
+        if(count($slices) > 0) $this->slices[$fp] = $slices;
 
 
         if($fp > $this->width) {
@@ -185,18 +204,43 @@ class Row {
 
         $t = $this->text;
         $t2 = '';
-        $p0 = 0;
+        $pb_now = 0; //pos begin
 
-        foreach($this->slices as $fp => $sls) {
-            foreach ($sls as $s) {
-                $p1 = $fp + $s->p;
-                
-                $t2 .= substr($t, $p0, $p1 - $p0) . $s;
+        
+        /*dump($this->slices);
+        dump(sprintf("\n.%s\n.%s",
+                        str_repeat('_123456789', 8),
+                        hsc($t)
+                    ));*/
 
-                $p0 = $p1 + $s->getL();
+        if(count($this->slices) > 0) {
+            foreach($this->slices as $sbegin => $sls) {
+                $pf_pre=0;
+                foreach ($sls as $s) {
+                    $pb_now = $sbegin + $s->p; //pos final
+
+                    $tt = $t2;
+                    
+                    $t2 .= mb_substr($t, $pf_pre, $pb_now - $pf_pre) . $s;
+
+                    /*dump(sprintf("\n.%s\n.%s\n.%s\n.%s\n.%s\n.%s\n sbegin=%2d, pb_now=%2d pf_pre=%2d l=%2d s-p=%2d",
+                        str_repeat('_123456789', 8),
+                        hsc($t),
+                        hsc($tt),
+                        hsc(substr($t, $pf_pre, $pb_now - $pf_pre)),
+                        hsc($t2),
+                        hsc($s),
+                        $sbegin, $pb_now, $pf_pre, $pf_pre - $pb_now, $s->p
+                    ));*/
+
+                    $pf_pre = $pb_now + $s->getL();
+                }
             }
+            $t2 .= mb_substr($t, $pf_pre);
         }
-
+        else {
+            $t2 = $t;
+        }
         if($this->type) $t2 = "<span class=\"{$this->type}\">{$t2}</span>";
 
         return $t2."\n";
@@ -215,6 +259,8 @@ class Slice {
 
     function __construct($p, $three) {
         $this->p = $p;
+
+        array_shift($three);
 
         $tag_whole = $three[0];
         
