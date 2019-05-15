@@ -107,7 +107,12 @@ class Row {
 
     function setPos($pos) {
         if(gettype($pos) === "integer" && $pos >= 0 && $pos <= 88) {
+            $l = $pos - $this->pos;
+            if($l > 0 && mb_strlen($this->text) < $l) {
+                $this->text .= str_repeat(' ', abs($pos - $this->pos));
+            }
             $this->pos = $pos;
+            //dump($this->pos);
         }
         else {
             throw new Exception("Row: wrong pos.");
@@ -135,58 +140,60 @@ class Row {
             $fp = $p - $l;
             $lp = $p;
         }
-
+        
         $ws = abs($fp - $this->pos);
 
-        $slices = [];
-        $html = $str;
-        $text = strip_tags($str);
-        $ph_ss = 0;
-        $pt = 0;
-        $t = preg_replace_callback('~<(.*?)>(.*?)</(\w+)>~', function($matches) use ($fp, &$pt, &$ph_ss, &$str, &$text, &$slices) {
-
-            $slice = mb_substr($str, $ph_ss);
-            $p = mb_strpos($slice, $matches[0]);
-
-            $pt += $p; // inizio html nel testo_senza_html
-            $s = new Slice($pt, $matches);
-            $pt += $s->getL(); //fine html nel testo_senza_html
-
-            /*dump(sprintf("\n        %s\n%2d,%2d  #%s\n%2d,%2d  #%s\n%2d,%2d  #%s\n%s\n%s",
-            str_repeat('_123456789', 7),
-                    $ph_ss, mb_strlen($slice), hsc($slice),
-                    $p, mb_strlen($matches[0]), hsc($matches[0]),
-                    $pt - $s->getL(), $s->getL(), $text,
-                    $matches[2],
-                $s->text));*/
-
-            $ph_ss += $p + mb_strlen($matches[0]); // da dove iniziare per eliminare l'html già elaborato
-
-            $slices[] = $s;
-
-            //$html = mb_substr($html, $p_html + mb_strlen($matches[0]));
-
-            return $s->text;            
-        }, $str);
-
-        /*dump($t);
-        dump($slices);*/
-        if(count($slices) > 0) $this->slices[$fp] = $slices;
-
-
-        if($fp > $this->width) {
-            throw new Exception("Position greater than line width: {$fp} > {$this->width}.");
-        }
-        if($lp > $this->width) {
-            throw new Exception("Position + string length greater than line width: {$lp} > {$this->width}.");
-        }
-
-        if($style) {
-            $this->styles[] = [ $this->pos, iconv_strlen($str), "span", $style ];
-        }
-
-        $this->text .= str_repeat(' ', $ws) . $t;
         $this->pos = $lp;
+        
+        $str = $this->text . str_repeat(' ', $ws) . $str;
+
+        $ms = [];
+
+
+        // dump("_____________________________________________________");
+        // mb_ereg_search_init($str, '<(.*?)>(.*?)</(\w+)>');
+        // mb_ereg_search();
+        // $r = mb_ereg_search_getpos();
+        // for($i=0; $i<3 && $r !== false; $i++) { dump($r); $r = mb_ereg_search_pos(); }
+        // mb_ereg_search_init($str, '<(.*?)>(.*?)</(\w+)>');
+        // mb_ereg_search();
+        // $r = mb_ereg_search_getregs();
+        // for($i=0; $i<3 && $r !== false; $i++) { dump($r); $r = mb_ereg_search_regs(); }
+        // dump("_____________________________________________________");
+
+
+        $r = preg_match_all('~<(.*?)>(.*?)</(\w+)>~', $str, $matches, PREG_OFFSET_CAPTURE);
+        $hl = 0;
+        $p_html_pre = 0;
+        $mb = 0;
+        for($i = 0; $i < $r; $i++) {
+            $t = $matches[2][$i][0];
+
+            $html = $matches[0][$i][0];
+
+            $p = $matches[0][$i][1];
+            $ss = substr($str, 0, $p);
+            $mb = $p -(strlen($ss) - mb_strlen($ss));
+
+
+            $this->slices[] = new Slice($mb - $hl, $html);
+
+
+            /*dump(righello()
+            ."\n$str\n"
+            .pidx($p, "p_html")."\n"
+            .pidx($mb, "mb")."\n"
+            .pidx($hl, "hl")."\n"
+            ."|$t|\n"
+            ."|$ss|\n"
+            .mb_strlen($ss)."\n"
+            ."$html\n"
+            .mb_strlen($html)."\n"
+            .mb_strlen($t));
+            $hl += mb_strlen($html) - mb_strlen($t);;*/
+        }
+
+        $this->text = strip_tags($str);
     }
 
     function close() {
@@ -204,39 +211,21 @@ class Row {
 
         $t = $this->text;
         $t2 = '';
-        $pb_now = 0; //pos begin
+        $pb = 0;
 
-        
-        /*dump($this->slices);
-        dump(sprintf("\n.%s\n.%s",
-                        str_repeat('_123456789', 8),
-                        hsc($t)
-                    ));*/
+        $sls = $this->slices;
+        $csls = count($sls);
 
-        if(count($this->slices) > 0) {
-            foreach($this->slices as $sbegin => $sls) {
-                $pf_pre=0;
-                foreach ($sls as $s) {
-                    $pb_now = $sbegin + $s->p; //pos final
-
-                    $tt = $t2;
-                    
-                    $t2 .= mb_substr($t, $pf_pre, $pb_now - $pf_pre) . $s;
-
-                    /*dump(sprintf("\n.%s\n.%s\n.%s\n.%s\n.%s\n.%s\n sbegin=%2d, pb_now=%2d pf_pre=%2d l=%2d s-p=%2d",
-                        str_repeat('_123456789', 8),
-                        hsc($t),
-                        hsc($tt),
-                        hsc(substr($t, $pf_pre, $pb_now - $pf_pre)),
-                        hsc($t2),
-                        hsc($s),
-                        $sbegin, $pb_now, $pf_pre, $pf_pre - $pb_now, $s->p
-                    ));*/
-
-                    $pf_pre = $pb_now + $s->getL();
-                }
+        if($csls > 0) {
+            for($i = 0; $i < $csls; ++$i) {
+                $s = $sls[$i];
+                $sp = $s->p-1;
+                $st = mb_substr($t, $pb, $sp - $pb);
+                $t2 .= $st . $s;
+                
+                $pb = $s->getLP() -1;
             }
-            $t2 .= mb_substr($t, $pf_pre);
+            $t2 .= mb_substr($t, $pb);
         }
         else {
             $t2 = $t;
@@ -256,35 +245,20 @@ class Slice {
     public $atts = [];
     public $tag;
     public $l;
+    public $lp;
 
-    function __construct($p, $three) {
+    function __construct($p, $html) {
         $this->p = $p;
-
-        array_shift($three);
-
-        $tag_whole = $three[0];
-        
-        $this->text = $three[1];
-        $tag_end = $three[2];
-        preg_match('~^\s*(\w+)\s*~', $tag_whole, $mtag);
-        preg_match_all('~(\w+)="([^"]+)"~', $tag_whole, $matts);
-        $this->tag = $mtag[1];
-        array_shift($matts);
-        
-        $this->atts = $matts;
+        $this->text = $html;
+        $this->l = $this->getL();
+        $this->lp = $this->getLP();
     }
 
-    function getL() { return mb_strlen($this->text); }
+    function getL() { return mb_strlen(strip_tags($this->text)); }
+
+    function getLP() { return $this->p + $this->getL(); }
     
     function __toString() {
-        $h = "<{$this->tag}";
-
-        for($i=0; $i<count($this->atts[0]); $i++) {
-            $h .= ' '.$this->atts[0][$i]."=\"". $this->atts[1][$i].'"';
-        }
-
-        $h .= ">".$this->text."</{$this->tag}>";
-
-        return $h;
+        return $this->text;
     }
 }

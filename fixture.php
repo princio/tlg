@@ -119,6 +119,7 @@ $ha = array_values($ha);
 $aa = array_values($aa);
 
 $mmmax = max($name_max, $surname_max);
+
 for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
     $row1 = new Row();
     $row2 = new Row();
@@ -134,15 +135,16 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
         }
     }
     if($i < count($aa)) {
-        $row1->print($aa[$i]['name'], -88);
-        $row2->print($aa[$i]['surname'], -88);
         $a = $apps[$aa[$i]['id']];
         if(array_key_exists('evts', $a)) {
-            $row1->setPos($mmmax);
-            foreach ($apps[$ha[$i]['id']]['evts'] as $e) {
-                $row1->print(event_to_html($e, $null));
+            $es = $apps[$aa[$i]['id']]['evts'];
+            $row1->setPos(88-$mmmax-5*count($es));
+            for ($j = count($es) - 1; $j >= 0; $j--) {
+                $row1->print(event_to_html($es[$j], $null));
             }
         }
+            $row1->print($aa[$i]['name'], -88);
+            $row2->print($aa[$i]['surname'], -88);
     }
     $board->printRow($row1);
     $board->printRow($row2);

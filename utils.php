@@ -89,3 +89,11 @@ function event_to_html($e, &$isH) {
         return sprintf("<span class=\"minute\">%3s</span>", $e['minute'].'\'') . $t;
     }
 }
+function righello($n=8) {
+    $t = "\n";
+    for($i=0; $i < $n; $i++) {
+        $t .= $i . '         ';
+    }
+    return $t."\n".str_repeat('_123456789', 8);
+}
+function pidx($n, $nn='') { return str_repeat(" ", $n > 0? $n-1:0) . '^'.$nn."=$n";}
