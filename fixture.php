@@ -93,7 +93,7 @@ $board->printRow(Row::Fast(wc('_', 70), 9));
 
 foreach ($evts as $e) {
     $row = new Row();
-    $a = &$apps[$e['app_id']];
+    $a = $apps[$e['app_id']];
     $isH = $a['team_id'] === $fix['home_team_id'];
     $ee = event_to_html($e, $isH);
     if($isH) {
@@ -106,10 +106,9 @@ foreach ($evts as $e) {
     $board->printRow($row);
 
     if(!array_key_exists('evts', $a)) {
-        $a['evts'] = [];
+        $apps[$e['app_id']]['evts'] = [];
     }
-    $a['evts'][] = $e;
-
+    $apps[$e['app_id']]['evts'][] = $e;
 }
 
 $board->printRow(Row::Fast(wc('‾', 70), 9));
@@ -130,7 +129,7 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
         $row2->print($ha[$i]['surname']);
         $a = $apps[$ha[$i]['id']];
         if(array_key_exists('evts', $a)) {
-            //$row1->setPos($mmmax);
+            $row3->setPos(2);
             foreach ($apps[$ha[$i]['id']]['evts'] as $e) {
                 $row3->print(event_to_html($e, $null));
             }
@@ -140,9 +139,12 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
         $a = $apps[$aa[$i]['id']];
         if(array_key_exists('evts', $a)) {
             $es = $apps[$aa[$i]['id']]['evts'];
-            $row3->setPos(88/* - $mmmax*/ -1 - 5*(-1+count($es)));
-            for ($j = count($es) - 1; $j >= 0; $j--) {
-                $row3->print(event_to_html($es[$j], $null));
+            $row3->setPos(86);
+            // $row3->setPos(88/* - $mmmax*/ -5 - 5*(count($es)));
+            // $j = count($es) - 1;
+            // $row3->print(event_to_html($es[$j], $null));
+            for ($j=0; $j < count($es); $j++) {
+                $row3->decr(event_to_html($es[$j], $null), 4, '', true);
             }
         }
         $row1->print($aa[$i]['name'], -88);
@@ -151,7 +153,7 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
     $board->printRow($row1);
     $board->printRow($row2);
     $board->printRow($row3);
-    $board->ww(3);
+    $board->ww(2);
 }
 
 ?>

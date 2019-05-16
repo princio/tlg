@@ -25,3 +25,4 @@ else {
 }
 extract(['body' => $body]);
 include_once('layout.php');
+

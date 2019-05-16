@@ -120,11 +120,16 @@ class Row {
         }
     }
 
-    function incr($str, $i, $style) {
-        $this->print($str, $this->pos + $i, $style = '');
+    function incr($str, $i, $style, $dump = false) {
+        $this->print($str, $this->pos + $i, $style = '', $dump);
     }
 
-    function print($str, $p = 0, $style = '') {
+    function decr($str, $i, $style, $dump = false) {
+        $this->pos -= $i;
+        $this->pos -= $this->print($str, 0, $style = '', $dump);
+    }
+
+    function print($str, $p = 0, $style = '', $dump = false) {
         $l = mb_strlen(strip_tags($str));
 
         if($p === 0) {
@@ -144,12 +149,17 @@ class Row {
         
         $ws = abs($fp - $this->pos);
 
-        $this->pos = $lp;
         
-        $str = $this->text . str_repeat(' ', $ws) . $str;
+        //$str = $this->text . str_repeat(' ', $ws) . $str;
 
+        
         $ms = [];
-
+        
+        if($dump === true) {
+            dump("ws=$ws, tp={$this->pos}, p=$p, fp=$fp, lp=$lp, l=$l\n|$str|");
+        }
+        
+        $this->pos = $lp;
 
         // dump("_____________________________________________________");
         // mb_ereg_search_init($str, '<(.*?)>(.*?)</(\w+)>');
@@ -177,7 +187,7 @@ class Row {
             $mb = 1+ $p -(strlen($ss) - mb_strlen($ss));
 
 
-            $this->slices[] = new Slice($mb - $hl, $html);
+            $this->slices[] = new Slice($fp + $mb - $hl, $html);
 
 
             // dump(righello()
@@ -197,7 +207,21 @@ class Row {
             $hl += mb_strlen($html) - mb_strlen($t);
         }
 
-        $this->text = strip_tags($str);
+        $t = $this->text;
+        $lt = mb_strlen($t);
+        $str_nh = strip_tags($str);
+        if($fp > $lt)
+            $t .= str_repeat(' ', $lp-$lt) . strip_tags($str);
+        if($fp < $lt) {
+            $t = mb_substr($t, 0, $fp) . $str_nh;
+            if($lp < $lt) {
+                $t .= mb_substr($t, $lp);
+            }
+        }
+
+        $this->text = $t;
+
+        return $l;
     }
 
     function close() {
