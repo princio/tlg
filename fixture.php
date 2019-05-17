@@ -1,18 +1,17 @@
 <?php
 
 require './dumper/autoload.php';
-require_once 'utils.php';
-require_once 'Board.php';
+require_once './Board.php';
+require_once 'utils.php'
 ?>
 
 <?php
 
 
 $servername = "localhost";
-$username = "root";
+$username = "princio";
 $password = "37727";
 
-$bb = new Board();
 
 try {
     $new = new PDO("mysql:host=$servername;dbname=newdb", $username, $password);
@@ -44,6 +43,7 @@ $aa = [];
 foreach ($_apps as $a) {
     $id = array_shift($a);
     $apps[$id] = $a;
+    $a['id'] = $id;
     if($a['team_id'] === $fix['home_team_id']) {
         $ha[$id] = $a;
     } else {
@@ -58,89 +58,101 @@ $evt_sel = $new->prepare($sql);
 $evt_sel->execute([ $page_id ]);
 $evts = $evt_sel->fetchAll(PDO::FETCH_ASSOC);
 
-echo '<div class="board">';
-
 /*monoopen("double");
 emono("%20s", $fix['home'].sprintf("  %2s", $fix['home_goals']), [ "class" => "" ]);
 ews(3);
 emono("%-20s", sprintf("%2s  ", $fix['away_goals']).'  '.$fix['away'], [ "class" => "bold" ]);
 monoclose();*/
-$bb->ep("{$fix['date']}, {$fix['time']}: {$fix['type']}");
-eww(2);
-$bb->setRowType("double");
-$bb->epf(20, $fix['home'], "bold");
-$bb->ews(3);
-$bb->epf(-20, $fix['home'], "bold");
-$bb->eww();
-$bb->epf(20, $fix['home_goals'], "bold");
-echo " — ";
-$bb->epf(-20, $fix['away_goals'], "bold");
-$bb->eww();
 
-$bb->ews(9);
-$bb->ewc('_', 70);   
-$bb->eww();
+$board = new Board();
+
+$row = new Row("double");
+$row->abs($fix['home'], 0, "bold");
+$row->abs($fix['away'], "lp", "bold");
+$board->printRow($row);
+$board->ww(2);
+$row = new Row("double");
+$of = 18;
+$row->abs($fix['home_goals'], $of, "bold");
+$row->abs("-", 21, "bold");
+$row->abs($fix['away_goals'], -43+$of, "bold");
+$board->printRow($row);
+$board->ww(2);
+$board->printRow(Row::Fast(wc('_', 70), 9));
+
+
 foreach ($evts as $e) {
+    $row = new Row();
     $a = $apps[$e['app_id']];
     $isH = $a['team_id'] === $fix['home_team_id'];
     $ee = event_to_html($e, $isH);
+    $row->setPos(39);
+
     if($isH) {
-        $bb->epf(40, "{$a['name']} {$a['surname']} $ee");
-    } else {
-        $bb->ews(40);
-        $bb->ep("  ··  ");
-        
-        $bb->epf(-40, "$ee {$a['name']} {$a['surname']}");
+        $row->rel($e["minute"].'\'', ["back", 3], "italic");
+        $row->rel($ee, [ "back", -2 ]);
+        $row->rel("{$a['name']} {$a['surname']}", -1);
     }
-    $bb->ww();
+    $row->abs("| ·· |", 40);
+    if(!$isH) {
+        $row->rel($e["minute"].'\'', [0, -3], "italic");
+        $row->rel($ee, [0, 1]);
+        $row->rel("{$a['name']} {$a['surname']}", 1);
+    }
+    $board->printRow($row);
+
+    //$row->dump();
+
+    if(!array_key_exists('evts', $a)) {
+        $apps[$e['app_id']]['evts'] = [];
+    }
+    $apps[$e['app_id']]['evts'][] = $e;
 }
-$bb->ews(9);
-$bb->ewc('‾', 70);
-$bb->eww(7);
 
-/*$ha = array_values($ha);
-$aa = array_values($aa);
+$board->printRow(Row::Fast(wc('‾', 70), 9));
 
-for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
-    if($i < count($ha)) {
-        $bb->epf("%-{$name_max}s", $ha[$i]['name']);
-        ews();
-        emono("%-{$surname_max}s", $ha[$i]['surname']);
-        ews(43 - $name_max - $surname_max);
-    }
-    else {
-        ews(44);
-    }
-    if($i < count($aa)) {
-        ews(43 - $name_max - $surname_max);
-        emono("%{$surname_max}s", $aa[$i]['surname']);
-        ews();
-        emono("%{$name_max}s", $aa[$i]['name']);
-    }
-    eww();
-    eww();
-    eww();
-    monoclose();
-}*/
+$board->ww(5);
 
 $ha = array_values($ha);
 $aa = array_values($aa);
 
-$bb->eww();
+$mmmax = max($name_max, $surname_max);
+
 for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
-    $hname = $ha[$i]['name'] ?? '';
-    $hsurn = $ha[$i]['name'] ?? '';
-    $aname = $aa[$i]['surname'] ?? '';
-    $asurn = $aa[$i]['surname'] ?? '';
-    $bb->setRowType('half');
-    $bb->epf(-44, $hname);
-    $bb->epf(44, $aname);
-    $bb->eww();
-    $bb->epf(-44, $hsurn);
-    $bb->epf(44, $asurn);
-    $bb->eww();
-    $bb->eww();
-    $bb->eww();
+    $row1 = new Row();
+    $row2 = new Row();
+    $row3 = new Row();
+    if($i < count($ha)) {
+        $row1->rel($ha[$i]['name']);
+        $row2->rel($ha[$i]['surname']);
+        $a = $apps[$ha[$i]['id']];
+        if(array_key_exists('evts', $a)) {
+            $row3->setPos(2);
+            foreach ($apps[$ha[$i]['id']]['evts'] as $e) {
+                $row3->rel(event_to_html($e, $null));
+            }
+        }
+    }
+    if($i < count($aa)) {
+        $a = $apps[$aa[$i]['id']];
+        if(array_key_exists('evts', $a)) {
+            $es = $apps[$aa[$i]['id']]['evts'];
+            $row3->setPos(86);
+            // $row3->setPos(88/* - $mmmax*/ -5 - 5*(count($es)));
+            // $j = count($es) - 1;
+            // $row3->abs(event_to_html($es[$j], $null));
+            for ($j=0; $j < count($es); $j++) {
+                $row3->rel($es[$j]['minute'], -1, 'italic');
+                $row3->rel(event_to_html($es[$j], $null), -1, '');
+            }
+        }
+        $row1->abs($aa[$i]['name'], "lp");
+        $row2->abs($aa[$i]['surname'], "lp");
+    }
+    $board->printRow($row1);
+    $board->printRow($row2);
+    $board->printRow($row3);
+    $board->ww(2);
 }
 
 ?>

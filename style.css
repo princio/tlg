@@ -1,4 +1,8 @@
-
+    .b-dump {
+        padding: 2px 4px;
+        margin: 0;
+        border:1px solid black;
+    }
     .test
     {
         position: absolute;
@@ -7,25 +11,21 @@
         width: auto;
         white-space: nowrap; /* Thanks to Herb Caudill omment */
     }
-    .full-board {
-        font-family: "monospace";
+    .board {
         white-space: pre;
+        font-family: "monospace";
         width: 880px;
         padding: 0 40px;
-        margin: auto;
+        margin: 0 auto;
         border-left: 1px solid black;
         border-right: 1px solid black;
     }
-    .info {
+    .half {
         font-size: 8px;
-    }
-    .board {
-        font-family: "monospace";
-        white-space: pre;
     }
     .double {
         font-size: 34px;
-        /*transform-origin: left bottom;
+        /*transfoVrm-origin: left bottom;
         -webkit-transform-origin: 0 0;
         -moz-transform-origin: 0 0;
         display: inline-block;*/
@@ -44,7 +44,7 @@
         border-radius: 50%;
         background-color: red;
     }
-    .minute {
+    .italic {
         font-style: italic;
     }
     .cell {
@@ -64,7 +64,6 @@
         border-radius: 50% 50%;
         /*background-color: #6ed637;*/
         background: radial-gradient(rgba(110, 214, 55, 1) 65%, rgba(110, 214, 55, 0) 15%);
-        
     }
     .own-goal {
         display: inline-block;
@@ -103,18 +102,67 @@
         background-color: #f1ed09;
         box-shadow: 0 0 0 2px #f0ce08 inset;
     }
-    .navbar {
+    .cover {
         background-color: #04317a;
         color: white;
+        width: 100%;
     }
+    .cover-content {
+        width: 880px;
+        padding: 0 40px;
+        margin: auto;
+        font-family: 'Courier New', Courier, monospace;
+        white-space: pre;
+    }
+    .cover-title {
+        font-weight: bold;
+        text-transform: capitalize;
+    }
+     /* unvisited link */
+    .cover-content a:link {
+        color: white;
+        font-weight: 800;
+        text-decoration: none;
+    }
+    /* visited link */
+    .cover-content a:visited {
+        color: rgb(173, 173, 173);
+        font-weight: 800;
+    }
+    /* mouse over link */
+    .cover-content a:hover {
+        color: lightblue;
+        font-weight: 800;
+    }
+    /* selected link */
+    .cover-content a:active {
+        color: white;
+        font-weight: 800;
+    } 
+     /* unvisited link */
+    .board a:link {
+        color: black;
+        font-weight: 800;
+        text-decoration: none;
+    }
+    /* visited link */
+    .cover-content a:visited {
+        color: rgb(173, 173, 173);
+        font-weight: 800;
+    }
+    /* mouse over link */
+    .cover-content a:hover {
+        color: lightblue;
+        font-weight: 800;
+    }
+    /* selected link */
+    .cover-content a:active {
+        color: white;
+        font-weight: 800;
+    } 
     .logo {
         text-transform: uppercase;
         font-weight: 800;
-    }
-    .nav-buttons {
-        width: 880px;
-        margin: auto;
-        text-align: center;
     }
     body {
         padding: 0;

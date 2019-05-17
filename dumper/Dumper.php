@@ -93,6 +93,20 @@ class Dumper
 	 */
 	public function dump($argument)
 	{
+		/*$st = debug_backtrace(6)[1];
+		$f = explode('/', $st['file']); 
+		$where = array_pop($f).'::'.$st['line'];
+
+		ob_start();
+		var_dump($argument);
+		$du = ob_get_clean();
+
+		$du = json_encode($argument, JSON_FORCE_OBJECT);
+
+		echo "<script> var b = \"" . $where ."\";";
+		echo "var a = ". $du . ";";
+		echo "console.log(b, a);";
+		echo "</script>";*/
 		if (!$this->usage) {
 			echo '<style type="text/css">';
 			echo file_get_contents(
@@ -113,6 +127,8 @@ class Dumper
 		echo '</pre>';
 
 		$this->usage += 1;
+
+		return $argument;
 	}
 
 	/**
@@ -128,7 +144,7 @@ class Dumper
 		foreach ($this->patterns as $class => $patterns) {
 			foreach ($patterns as $pattern) {
 				$dump = preg_replace_callback($pattern, function ($matches) use ($class) {
-					return "<span class=\"$class\">" . $matches[1] . '</span>';
+					return "<span class=\"$class\">" . hsc($matches[1]) . '</span>';
 				}, $dump);
 			}
 		}

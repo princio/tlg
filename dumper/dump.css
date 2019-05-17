@@ -9,12 +9,13 @@ pre.dump {
     letter-spacing: 1px;
     line-height: 24px;
     margin: auto auto 8px auto;
-    max-width: 640px;
+    max-width: 880px;
     overflow-x: auto;
-    padding: 20px;
+    padding: 5px 20px;
     position: relative;
     right: 0;
-    width: 80vw;
+    width: 880px;
+    /*opacity: 0.8;*/
 }
 
 pre.dump span {

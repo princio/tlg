@@ -3,6 +3,9 @@ ini_set('display_startup_errors', 1);
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+function hsc($str) {
+    return htmlspecialchars($str);
+}
 function ws($n = 1) {
     return str_repeat(' ', $n);
 }
@@ -67,22 +70,62 @@ function event_to_html($e, &$isH) {
             $isH = !$isH;
             $t = '<span class="own-goal"> </span>';
         }
-        $t = ($isH ? ' ' : '') . $t . (!$isH ? ' ' : '');
     }
     if($type === "booking") {
         if($subtype === "yc") {
             $t = '<span class="yc">  </span>';
         }
         if($subtype === "y2c") {
-            $t = '<span style="border-radius: 5px; background-color: #f1ed09;"> </span><span style="background-color: red;">  </span>';
+            $t = '<span style="border-radius: 5px; background-color: #f1ed09;"> </span><span style="background-color: red;"> </span>';
         }
         if($subtype === "rc") {
             $t = '<span style="background-color: red;">  </span>';
         }
     }
-    if($isH) {
-        return $t . sprintf("<span class=\"minute\">%3s</span>", $e['minute'].'\'');
-    } else {
-        return sprintf("<span class=\"minute\">%3s</span>", $e['minute'].'\'') . $t;
-    }
+    return $t;
 }
+/*
+
+function event_to_html($e, &$isH) {
+    $type = $e['type'];
+    $subtype = $e['subtype'];
+
+    if($type === "goal") {
+        if($subtype === "normal") {
+            $t = '<span class="goal"> </span>';
+        } else
+        if($subtype === "own") {
+            $isH = !$isH;
+            $t = '<span class="own-goal"> </span>';
+        }
+        $t = ($isH?' ':'').$t.($isH?'':' ');
+    }
+    if($type === "booking") {
+        if($subtype === "yc") {
+            $t = '<span class="yc">  </span>';
+        }
+        if($subtype === "y2c") {
+            $t = '<span style="border-radius: 5px; background-color: #f1ed09;"> </span><span style="background-color: red;"> </span>';
+        }
+        if($subtype === "rc") {
+            $t = '<span style="background-color: red;">  </span>';
+        }
+    }
+    $m = '';
+    if($e['minute'])
+        $m = sprintf("<span class=\"minute\">%3s</span>", $e['minute'].'\'');
+    if($isH) {
+        return $t . $m;
+    } else {
+        return $m . $t;
+    }
+}/**/
+
+function righello($n=8) {
+    $t = "\n|";
+    for($i=0; $i < $n; $i++) {
+        $t .= $i . '123456789';
+    }
+    return $t."\n";
+}
+function pidx($n, $nn='') { return "\n|".str_repeat(" ", $n > 0? $n-1:0) . '^'.$nn."=$n";}
