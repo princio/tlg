@@ -12,7 +12,7 @@ $id = $ms[2];
 
 extract(['page_id' => $id]);
 ob_start();
-include_once($page.'.php');
+include_once('./'.$page.'.php');
 $body = ob_get_clean();
 
 extract(['body' => $body]);

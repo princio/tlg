@@ -1,16 +1,18 @@
 <?php
 
 require './dumper/autoload.php';
-require_once 'utils.php'
+require_once 'utils.php';
+require_once 'Board.php';
 ?>
 
 <?php
 
 
 $servername = "localhost";
-$username = "princio";
-$password = "pomo";
+$username = "root";
+$password = "37727";
 
+$bb = new Board();
 
 try {
     $new = new PDO("mysql:host=$servername;dbname=newdb", $username, $password);
@@ -63,48 +65,45 @@ emono("%20s", $fix['home'].sprintf("  %2s", $fix['home_goals']), [ "class" => ""
 ews(3);
 emono("%-20s", sprintf("%2s  ", $fix['away_goals']).'  '.$fix['away'], [ "class" => "bold" ]);
 monoclose();*/
-monoopen();
-echo "{$fix['date']}, {$fix['time']}: {$fix['type']}";
+$bb->ep("{$fix['date']}, {$fix['time']}: {$fix['type']}");
 eww(2);
-monoclose();
-monoopen("double");
-emono("%20s", $fix['home'], [ "class" => "bold" ]);
-emono("%s", "   ");
-emono("%-20s", $fix['away'], [ "class" => "bold" ]);
-eww();
-emono("%20s", $fix['home_goals'], [ "class" => "bold" ]);
-emono("%s", " — ");
-emono("%-20s", $fix['away_goals'], [ "class" => "bold" ]);
-monoclose();
-eww();
-ews(9); ewc('_', 70); eww(); ews(42); echo '··'; ews(42);
+$bb->setRowType("double");
+$bb->epf(20, $fix['home'], "bold");
+$bb->ews(3);
+$bb->epf(-20, $fix['home'], "bold");
+$bb->eww();
+$bb->epf(20, $fix['home_goals'], "bold");
+echo " — ";
+$bb->epf(-20, $fix['away_goals'], "bold");
+$bb->eww();
 
+$bb->ews(9);
+$bb->ewc('_', 70);   
+$bb->eww();
 foreach ($evts as $e) {
-    monoopen();
     $a = $apps[$e['app_id']];
     $isH = $a['team_id'] === $fix['home_team_id'];
     $ee = event_to_html($e, $isH);
     if($isH) {
-        emono("%40s  ··", $a['name'] . ' ' . $a['surname'] . '  ' . $ee);
+        $bb->epf(40, "{$a['name']} {$a['surname']} $ee");
     } else {
-        ews(40);
-        emono("%s", "  ··  ");
+        $bb->ews(40);
+        $bb->ep("  ··  ");
         
-        emono("%-40s", $ee . '  ' . $a['name'] . ' ' . $a['surname']);
+        $bb->epf(-40, "$ee {$a['name']} {$a['surname']}");
     }
-    eww();
-    monoclose();
+    $bb->ww();
 }
-ews(9); ewc('_', 70);
-eww(7);
+$bb->ews(9);
+$bb->ewc('‾', 70);
+$bb->eww(7);
 
-$ha = array_values($ha);
+/*$ha = array_values($ha);
 $aa = array_values($aa);
 
 for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
-    monoopen();
     if($i < count($ha)) {
-        emono("%-{$name_max}s", $ha[$i]['name']);
+        $bb->epf("%-{$name_max}s", $ha[$i]['name']);
         ews();
         emono("%-{$surname_max}s", $ha[$i]['surname']);
         ews(43 - $name_max - $surname_max);
@@ -119,7 +118,29 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
         emono("%{$name_max}s", $aa[$i]['name']);
     }
     eww();
+    eww();
+    eww();
     monoclose();
+}*/
+
+$ha = array_values($ha);
+$aa = array_values($aa);
+
+$bb->eww();
+for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
+    $hname = $ha[$i]['name'] ?? '';
+    $hsurn = $ha[$i]['name'] ?? '';
+    $aname = $aa[$i]['surname'] ?? '';
+    $asurn = $aa[$i]['surname'] ?? '';
+    $bb->setRowType('half');
+    $bb->epf(-44, $hname);
+    $bb->epf(44, $aname);
+    $bb->eww();
+    $bb->epf(-44, $hsurn);
+    $bb->epf(44, $asurn);
+    $bb->eww();
+    $bb->eww();
+    $bb->eww();
 }
 
 ?>
