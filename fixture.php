@@ -97,12 +97,14 @@ foreach ($evts as $e) {
     $isH = $a['team_id'] === $fix['home_team_id'];
     $ee = event_to_html($e, $isH);
     if($isH) {
-        $row->abs($ee, -39);
-        $row->rel("{$a['name']} {$a['surname']}", 1);
+        $row->abs($ee, [-39, 2]);
+        $row->rel($e["minute"].'\'', ["back", 3], "italic");
+        $row->rel("{$a['name']} {$a['surname']}", -1);
     }
     $row->abs("  ··  ", 40);
     if(!$isH) {
-        $row->rel($ee . ' ');
+        $row->rel($ee);
+        $row->rel($e["minute"].'\'', [1, 3], "italic");
         $row->rel("{$a['name']} {$a['surname']}");
     }
     $board->printRow($row);

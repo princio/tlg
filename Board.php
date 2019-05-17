@@ -132,52 +132,67 @@ class Row {
         }
     }
 
-    function rel($str, $i = 0, $style = '', $dump = false) {
-        $_l = $l = mb_strlen(strip_tags($str));
+    private function handle_pos_input(&$str, $i) {
+        $l_or = mb_strlen(strip_tags($str));
 
         if(is_array($i)) {
-            $_l = $i[1];
+            $l = $i[1];
             $fp = $i[0];
-            if(isset($_l) && $_l >0 && $_l < $l) throw new Exception("Row: l is too small $_l < $l.");
-            $l = $_l;
-            $i="[$fp, $_l]";
-        }
-        else if($i === 'back' || $i < 0) {
-            $i = is_string($i) ? 0 : $i;
-            $fp = $this->pos + $i - $l;
+            if(abs($l) < $l_or){
+                throw new Exception("Row: l is too small $l < $l_or.");
+            }
+            else {
+                if($l < 0)  $str = str_repeat(' ', abs($l)-$l_or) . $str;
+                else        $str .= str_repeat(' ', $l-$l_or);
+            }
+            $l_i = $l;
         } else {
-            $fp = $this->pos + $i;
+            $fp = $i;
+            $l = $l_or;
+            $l_i = "_";
         }
-        
 
-        $this->dumpmessage = "REL: p={$this->pos}, i=$i -> fp=$fp, l=$_l\t|$str|";
-        
-
-        $this->addSlice($str, $fp, $l, $style, $dump);
+        return [$fp, $l, $l_or, $l_i];
     }
 
-    function abs($str, $fp, $style = '', $dump = false) {
+    function abs($str, $i, $style = '', $dump = false) {
         
+        list($fp_i, $l, $l_or, $l_i) = $this->handle_pos_input($str, $i);
         
-        $_l = $l = mb_strlen(strip_tags($str));
+        if($fp_i === "lp")    $fp = $this->width - $l;
+        else
+        if($fp_i === 0)       $fp = $this->pos;
+        else
+        if($fp_i < 0)         $fp = -1 * $fp_i - $l;
+        else                  $fp = $fp_i;
         
-        if(is_array($fp)) {
-            $_l = $fp[1];
-            $fp = $fp[0];
-            if($_l >0 && $_l < $l) throw new Exception("Row: l is too small $_l < $l.");
-            $l = $_l;
+        $lp = $fp + $l;
+
+        $this->dumpmessage =
+            sprintf("%-5s %6s %6s        %6s(%s)\n", "ABS", $this->pos, $fp_i, $l_i, $l_or);
+
+        $this->addSlice($str, $fp, $l, $style, $dump);
+
+        $this->pos = $lp;
+    }
+
+    function rel($str, $i = 0, $style = '', $dump = false) {
+
+        list($fp_i, $l, $l_or, $l_i) = $this->handle_pos_input($str, $i);
+
+        if($fp_i === 'back' || $fp_i < 0) {
+            $fp = $this->pos + (is_string($fp_i) ? 0 : $fp_i);
+            $fp -= $l;
+            $tp = $fp-1;
+        } else {
+            $fp = $this->pos + $fp_i;
+            $tp = $fp + $l;
         }
         
-        
-        if($fp === "lp")    $fp = -$this->width +1;
-        else
-        if($fp === 0)       $fp = $this->pos;
-        else
-        if($fp < 0)         $fp = -1 * $fp - $l + 1;
-        
+        $this->dumpmessage =
+            sprintf("%-5s %6s %6s        %6s(%s)\n", "REL", $this->pos, $fp_i, $l_i, $l_or);
 
-        $this->dumpmessage = "abs(|$str|, fp=$fp, l=$_l) $this->pos={$this->pos}";
-        
+        $this->pos = $tp;
 
         $this->addSlice($str, $fp, $l, $style, $dump);
     }
@@ -198,25 +213,28 @@ class Row {
 
         if($dump)    dump("{$fp}, $l");
 
-        $p=0;
-        foreach($sls as $sfp => $s) {
-            if($fp >= $s[0] && $fp < $s[1]) {
-                $this->dump2($str, $fp, $lp, $l, 0);
-                throw new Exception("Row: first position occupied: str=$str, {$s[0]} < $fp < {$s[1]}");
-            }
-            if($lp > $s[0] && $lp < $s[1]) {
-                $this->dump2($str, $fp, $lp, $l, 0);
-                throw new Exception("Row: last position occupied: {$s[0]} < $l < {$s[1]}");
-            }
-        }
 
         $this->slices[$fp] = [
             $fp,
             $lp,
             $l,
             $str,
-            $this->dumpmessage
+            $this->dumpmessage,
+            $this->pos
         ];
+
+        foreach($sls as $sfp => $s) {
+            if($fp >= $s[0] && $fp < $s[1]) {
+                $msg = "Row: first position occupied: str=$str, {$s[0]} < $fp < {$s[1]}";
+                $this->dump($msg);
+                throw new Exception($msg);
+            }
+            if($lp > $s[0] && $lp < $s[1]) {
+                $msg = "Row: last position occupied: {$s[0]} < $lp < {$s[1]}";
+                $this->dump($msg);
+                throw new Exception($msg);
+            }
+        }
     }
 
     function print2($str, $p = 0, $style = '', $dump = false) {
@@ -325,31 +343,20 @@ class Row {
         return $this;
     }
 
-    function dump() {
+    function dump($msg = '') {
         foreach($this->slices as $fp => $s) {
 
-            $ws = $s[0] - 1;
-            
-            if($ws > 0) $t = str_repeat(' ', $ws) . $s[3];
-            else $t = $s[3];
+            $t = str_repeat(' ', $s[0] - 1) . $s[3];
 
-            $this->dump .= "$s[4]\n" . righello() . "|{$t}|" . pidx($s[0]) . pidx($s[1]) . pidx($ws) . "\n".$this->dumpSlice($s);
+            $this->dump .= "\n----\n|$s[3]|\n$s[4]";
+            $this->dump .= sprintf("      %6s %6s,%-6s %6s", $s[5], $s[0], $s[1], $s[2]);
+
+            $this->dump .= righello() . "|{$t}|" . pidx($s[0],"pf") . pidx($s[1],"pl") . "\n";
         }
-    }
+        $this->dump .= $msg . "\n";
 
-    function dump2($str, $fp, $lp, $l, $po) {
-        $d = righello();
-        $t='';
+        dump($this->dump);
 
-        $this->dump();
-        
-        $ws = $fp - 1;
-        if($ws > 0) $t = str_repeat(' ', $ws);
-
-        $t .= $str;
-        $this->dump = $this->dumpmessage . righello() . "|{$t}|" . pidx($fp) . pidx($lp) . pidx($ws) . "\n|{$str}|";
-
-        dump($this->dump . '\n|' . $this->__toString());
     }
 
     function dumpSlice($s) {
@@ -357,20 +364,22 @@ class Row {
     }
 
     function __toString() {
-        ksort($this->slices);
-
+        $sls = [];
         $sls = $this->slices;
 
-        $this->dump();
-        
+        ksort($sls);
+
         $t = '';
         $t_l=0;
+        $g = '';
         foreach($sls as $fp => $s) {
 
             $ws = $s[0] - $t_l;
 
+            $g .= "[$fp]_($s[0] - $t_l) ";
+
             if($ws >= 0) $t .= str_repeat(' ', $ws);
-            else dump("ws=$ws, " . $this->dumpSlice($s));
+            else $this->dump("[ws < 0]: ws=$ws, pf=$s[0], tl=$t_l ($g)");
 
             $t .= $s[3];
 
