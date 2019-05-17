@@ -69,23 +69,23 @@ $board = new Board();
 /*$board->printRow(Row::Fast("{$fix['date']}, {$fix['time']}: {$fix['type']}"));
 $board->ww(2);
 $row = new Row("double");
-$row->print($fix['home'], 0, "bold");
-$row->print($fix['home_goals'], -20, "bold");
-$row->print(" — ");
-$row->print($fix['away_goals'], 23, "bold");
-$row->print($fix['away'], -44, "bold");
+$row->abs($fix['home'], 0, "bold");
+$row->abs($fix['home_goals'], -20, "bold");
+$row->abs(" — ");
+$row->abs($fix['away_goals'], 23, "bold");
+$row->abs($fix['away'], -44, "bold");
 $board->printRow($row);
 $board->ww(2);
 */$row = new Row("double");
-$row->print($fix['home'], 0, "bold");
-$row->print($fix['away'], -44, "bold");
+$row->abs($fix['home'], 0, "bold");
+$row->abs($fix['away'], "lp", "bold");
 $board->printRow($row);
 $board->ww(2);
 $row = new Row("double");
 $of = 18;
-$row->print($fix['home_goals'], $of, "bold");
-$row->print("-", 21, "bold");
-$row->print($fix['away_goals'], -43+$of, "bold");
+$row->abs($fix['home_goals'], $of, "bold");
+$row->abs("-", 21, "bold");
+$row->abs($fix['away_goals'], -43+$of, "bold");
 $board->printRow($row);
 $board->ww(2);
 $board->printRow(Row::Fast(wc('_', 70), 9));
@@ -97,13 +97,17 @@ foreach ($evts as $e) {
     $isH = $a['team_id'] === $fix['home_team_id'];
     $ee = event_to_html($e, $isH);
     if($isH) {
-        $row->print("{$a['name']} {$a['surname']} {$ee}", -40);
+        $row->abs($ee, -39);
+        $row->rel("{$a['name']} {$a['surname']}", 1);
     }
-    $row->print("  ··  ", 40);
+    $row->abs("  ··  ", 40);
     if(!$isH) {
-        $row->print("{$ee} {$a['name']} {$a['surname']}");
+        $row->rel($ee . ' ');
+        $row->rel("{$a['name']} {$a['surname']}");
     }
     $board->printRow($row);
+
+    //$row->dump();
 
     if(!array_key_exists('evts', $a)) {
         $apps[$e['app_id']]['evts'] = [];
@@ -125,13 +129,13 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
     $row2 = new Row();
     $row3 = new Row();
     if($i < count($ha)) {
-        $row1->print($ha[$i]['name']);
-        $row2->print($ha[$i]['surname']);
+        $row1->rel($ha[$i]['name']);
+        $row2->rel($ha[$i]['surname']);
         $a = $apps[$ha[$i]['id']];
         if(array_key_exists('evts', $a)) {
             $row3->setPos(2);
             foreach ($apps[$ha[$i]['id']]['evts'] as $e) {
-                $row3->print(event_to_html($e, $null));
+                $row3->rel(event_to_html($e, $null));
             }
         }
     }
@@ -142,13 +146,14 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
             $row3->setPos(86);
             // $row3->setPos(88/* - $mmmax*/ -5 - 5*(count($es)));
             // $j = count($es) - 1;
-            // $row3->print(event_to_html($es[$j], $null));
+            // $row3->abs(event_to_html($es[$j], $null));
             for ($j=0; $j < count($es); $j++) {
-                $row3->decr(event_to_html($es[$j], $null), 4, '', true);
+                $row3->rel($es[$j]['minute'], -1, 'italic');
+                $row3->rel(event_to_html($es[$j], $null), -1, '');
             }
         }
-        $row1->print($aa[$i]['name'], -88);
-        $row2->print($aa[$i]['surname'], -88);
+        $row1->abs($aa[$i]['name'], "lp");
+        $row2->abs($aa[$i]['surname'], "lp");
     }
     $board->printRow($row1);
     $board->printRow($row2);

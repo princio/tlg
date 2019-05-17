@@ -44,7 +44,7 @@
 </div>
 
 <script>
-
+/*
 var $dumps = $("pre.dump");
 
 let n = -1;
@@ -59,16 +59,17 @@ $dumps.each((i,e) => {
             $div.appendTo("body");
         }
         n = n + 1;
-        $div = $(`<div id="dump-${n}" style="z-index: 5; position: absolute; left:0px; top: ${top_new}px;"></div>`);
+        $div = $(`<div id="dump-${n}" style="z-index: 1; position: absolute; left:0px; top: ${top_new}px;"></div>`);
     }
     
     $e.attr('id', "dump-x"+i);
+    $e.css('left', "40px");
     console.log($e);
     $e.remove();
 
     $e.hide();
 
-    $div.append(`<a onclick="showdump(${i})">dump ${i}</a><br/>`).append($e);
+    $div.append(`<span onclick="showdump(${i})" style="z-index: 0;">dump ${i}</span><br/>`).append($e);
 
     _top = top_new
 });
@@ -77,7 +78,7 @@ $div.appendTo("body");
 function showdump(i) {
     $(`#dump-x${i}`).toggle();
 }
-
+*/
 </script>
 
 </body>

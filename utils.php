@@ -70,6 +70,34 @@ function event_to_html($e, &$isH) {
             $isH = !$isH;
             $t = '<span class="own-goal"> </span>';
         }
+    }
+    if($type === "booking") {
+        if($subtype === "yc") {
+            $t = '<span class="yc">  </span>';
+        }
+        if($subtype === "y2c") {
+            $t = '<span style="border-radius: 5px; background-color: #f1ed09;"> </span><span style="background-color: red;"> </span>';
+        }
+        if($subtype === "rc") {
+            $t = '<span style="background-color: red;">  </span>';
+        }
+    }
+    return $t;
+}
+/*
+
+function event_to_html($e, &$isH) {
+    $type = $e['type'];
+    $subtype = $e['subtype'];
+
+    if($type === "goal") {
+        if($subtype === "normal") {
+            $t = '<span class="goal"> </span>';
+        } else
+        if($subtype === "own") {
+            $isH = !$isH;
+            $t = '<span class="own-goal"> </span>';
+        }
         $t = ($isH?' ':'').$t.($isH?'':' ');
     }
     if($type === "booking") {
@@ -91,12 +119,13 @@ function event_to_html($e, &$isH) {
     } else {
         return $m . $t;
     }
-}
+}/**/
+
 function righello($n=8) {
-    $t = "\n";
+    $t = "\n|";
     for($i=0; $i < $n; $i++) {
-        $t .= $i . '         ';
+        $t .= $i . '123456789';
     }
-    return $t."\n".str_repeat('_123456789', 8);
+    return $t."\n";
 }
-function pidx($n, $nn='') { return str_repeat(" ", $n > 0? $n-1:0) . '^'.$nn."=$n";}
+function pidx($n, $nn='') { return "\n|".str_repeat(" ", $n > 0? $n-1:0) . '^'.$nn."=$n";}

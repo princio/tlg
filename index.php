@@ -3,8 +3,6 @@
 require_once './dumper/autoload.php';
 require_once './utils.php';
 
-$a = [];
-
 
 preg_match('~/(\w+)/(\w+)?~', $_SERVER['REQUEST_URI'], $ms);
 

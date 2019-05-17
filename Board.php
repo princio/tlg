@@ -3,6 +3,7 @@
 class Board {
 
     const WIDTH = 88;
+
     const SW = 10;
     private $curP = 0;
     private $cr = null;
@@ -24,17 +25,24 @@ class Board {
         return $this->rowLength($this->curP);
     }
 
-    static function GetWidth($type, $l = null) {
-        $l = $l === null ? self::WIDTH : $l;
-        switch($l) {
+    static function GetWidth($type, $l = -1) {
+        $l = $l === -1 ? self::WIDTH : $l;
+        switch($type) {
             case "half":
-                $l = $l >> 1;
+                $l = $l << 1;
+                break;
+            case "normal":
+                $l = self::WIDTH;
                 break;
             case "double":
-                $l = $l << 1;
+                $l = $l >> 1;
                 break;
         }
         return $l;
+    }
+
+    static function GetLastPosition($type) {
+        return GetWidth($type) - 1;
     }
 
     function ww($n = 1) {
@@ -77,7 +85,9 @@ class Board {
 
 class Row {
 
-    private $pos;
+    private $fps = [];
+    private $ls = [];
+    private $pos = 0;
     private $type;
     private $width = 0;
     private $closed = false;
@@ -86,6 +96,8 @@ class Row {
     private $slices = [];
     private $encloser;
     public $href = '';
+    private $dump;
+    private $dumpmessage;
 
     function __construct($type = "normal") {
         $this->type = $type;
@@ -100,7 +112,7 @@ class Row {
 
     static function Fast($str, $p = 0, $type = "normal") {
         $row = new Row($type);
-        $row->print($str, $p);
+        $row->abs($str, $p);
         return $row;
     }
 
@@ -120,16 +132,94 @@ class Row {
         }
     }
 
-    function incr($str, $i, $style, $dump = false) {
-        $this->print($str, $this->pos + $i, $style = '', $dump);
+    function rel($str, $i = 0, $style = '', $dump = false) {
+        $_l = $l = mb_strlen(strip_tags($str));
+
+        if(is_array($i)) {
+            $_l = $i[1];
+            $fp = $i[0];
+            if(isset($_l) && $_l >0 && $_l < $l) throw new Exception("Row: l is too small $_l < $l.");
+            $l = $_l;
+            $i="[$fp, $_l]";
+        }
+        else if($i === 'back' || $i < 0) {
+            $i = is_string($i) ? 0 : $i;
+            $fp = $this->pos + $i - $l;
+        } else {
+            $fp = $this->pos + $i;
+        }
+        
+
+        $this->dumpmessage = "REL: p={$this->pos}, i=$i -> fp=$fp, l=$_l\t|$str|";
+        
+
+        $this->addSlice($str, $fp, $l, $style, $dump);
     }
 
-    function decr($str, $i, $style, $dump = false) {
-        $this->pos -= $i;
-        $this->pos -= $this->print($str, 0, $style = '', $dump);
+    function abs($str, $fp, $style = '', $dump = false) {
+        
+        
+        $_l = $l = mb_strlen(strip_tags($str));
+        
+        if(is_array($fp)) {
+            $_l = $fp[1];
+            $fp = $fp[0];
+            if($_l >0 && $_l < $l) throw new Exception("Row: l is too small $_l < $l.");
+            $l = $_l;
+        }
+        
+        
+        if($fp === "lp")    $fp = -$this->width +1;
+        else
+        if($fp === 0)       $fp = $this->pos;
+        else
+        if($fp < 0)         $fp = -1 * $fp - $l + 1;
+        
+
+        $this->dumpmessage = "abs(|$str|, fp=$fp, l=$_l) $this->pos={$this->pos}";
+        
+
+        $this->addSlice($str, $fp, $l, $style, $dump);
     }
 
-    function print($str, $p = 0, $style = '', $dump = false) {
+    function addSlice($str, $fp, $l, $style = '', $dump = false) {
+        switch($style) {
+            case '': break;
+            case "italic":
+            $str = "<span class=\"italic\">$str</span>";
+            break;
+            default:
+            $str = "<span $style>$str</span>";
+        }
+
+        $sls = $this->slices;
+
+        $lp = $fp + $l;
+
+        if($dump)    dump("{$fp}, $l");
+
+        $p=0;
+        foreach($sls as $sfp => $s) {
+            if($fp >= $s[0] && $fp < $s[1]) {
+                $this->dump2($str, $fp, $lp, $l, 0);
+                throw new Exception("Row: first position occupied: str=$str, {$s[0]} < $fp < {$s[1]}");
+            }
+            if($lp > $s[0] && $lp < $s[1]) {
+                $this->dump2($str, $fp, $lp, $l, 0);
+                throw new Exception("Row: last position occupied: {$s[0]} < $l < {$s[1]}");
+            }
+        }
+
+        $this->slices[$fp] = [
+            $fp,
+            $lp,
+            $l,
+            $str,
+            $this->dumpmessage
+        ];
+    }
+
+    function print2($str, $p = 0, $style = '', $dump = false) {
         $l = mb_strlen(strip_tags($str));
 
         if($p === 0) {
@@ -235,7 +325,68 @@ class Row {
         return $this;
     }
 
+    function dump() {
+        foreach($this->slices as $fp => $s) {
+
+            $ws = $s[0] - 1;
+            
+            if($ws > 0) $t = str_repeat(' ', $ws) . $s[3];
+            else $t = $s[3];
+
+            $this->dump .= "$s[4]\n" . righello() . "|{$t}|" . pidx($s[0]) . pidx($s[1]) . pidx($ws) . "\n".$this->dumpSlice($s);
+        }
+    }
+
+    function dump2($str, $fp, $lp, $l, $po) {
+        $d = righello();
+        $t='';
+
+        $this->dump();
+        
+        $ws = $fp - 1;
+        if($ws > 0) $t = str_repeat(' ', $ws);
+
+        $t .= $str;
+        $this->dump = $this->dumpmessage . righello() . "|{$t}|" . pidx($fp) . pidx($lp) . pidx($ws) . "\n|{$str}|";
+
+        dump($this->dump . '\n|' . $this->__toString());
+    }
+
+    function dumpSlice($s) {
+        return "$s[4], fp=$s[0], lp=$s[1], l=$s[2], str=|$s[3]|";
+    }
+
     function __toString() {
+        ksort($this->slices);
+
+        $sls = $this->slices;
+
+        $this->dump();
+        
+        $t = '';
+        $t_l=0;
+        foreach($sls as $fp => $s) {
+
+            $ws = $s[0] - $t_l;
+
+            if($ws >= 0) $t .= str_repeat(' ', $ws);
+            else dump("ws=$ws, " . $this->dumpSlice($s));
+
+            $t .= $s[3];
+
+            $t_l = $s[1];
+        }
+        $t2 = $t;
+        if($this->type === "link") $t = "<a href=\"{$this->href}\">{$t}</a>";
+        else
+        if($this->type) $t = "<span class=\"{$this->type}\">{$t}</span>";
+        
+        //dump("$this->type\n$t2\n$t", $this);
+
+        return $t."\n";
+    }
+
+    function __toString2() {
 
         $t = $this->text;
         $t2 = '';

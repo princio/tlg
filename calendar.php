@@ -53,7 +53,6 @@ foreach ($fixs as $f) {
     $row1->print($f['hg'], $pg);
     $row1->print('-', $pg + 3);
     $row1->print($f['ag'], $pg + 5);
-    $row1->print("</a>");
     if($d->format("d") !== $d_old->format("d")) {
         $board->printRow($row_dash);
         $board->ww(1);
