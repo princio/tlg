@@ -154,11 +154,11 @@ class Row {
             }
             else {
                 if($l < 0)  {
-                    $str = str_repeat('.', abs($l)-$l_or) . $str;
+                    $str = str_repeat(' ', abs($l)-$l_or) . $str;
                     $l *= -1;
                 }
                 else {
-                    $str .= str_repeat('.', $l-$l_or);
+                    $str .= str_repeat(' ', $l-$l_or);
                 }   
             }
             $l_i = $l;
@@ -219,6 +219,9 @@ class Row {
             case '': break;
             case "italic":
             $str = "<span class=\"italic\">$str</span>";
+            break;
+            case "bold":
+            $str = "<span class=\"bold\">$str</span>";
             break;
             default:
             $str = "<span $style>$str</span>";
@@ -286,18 +289,6 @@ class Row {
         
         $this->pos = $lp;
 
-        // dump("_____________________________________________________");
-        // mb_ereg_search_init($str, '<(.*?)>(.*?)</(\w+)>');
-        // mb_ereg_search();
-        // $r = mb_ereg_search_getpos();
-        // for($i=0; $i<3 && $r !== false; $i++) { dump($r); $r = mb_ereg_search_pos(); }
-        // mb_ereg_search_init($str, '<(.*?)>(.*?)</(\w+)>');
-        // mb_ereg_search();
-        // $r = mb_ereg_search_getregs();
-        // for($i=0; $i<3 && $r !== false; $i++) { dump($r); $r = mb_ereg_search_regs(); }
-        // dump("_____________________________________________________");
-
-
         $r = preg_match_all('~<(.*?)>(.*?)</(\w+)>~', $str, $matches, PREG_OFFSET_CAPTURE);
         $hl = 0;
         $p_html_pre = 0;
@@ -313,20 +304,6 @@ class Row {
 
 
             $this->slices[] = new Slice($fp + $mb - $hl, $html);
-
-
-            // dump(righello()
-            // ."\n$str\n"
-            // .strip_tags($str)."\n"
-            // .pidx($mb-$hl, "mb-hl")."\n"
-            // .pidx($p, "p_html")."\n"
-            // .pidx($mb, "mb")."\n"
-            // ."|$t|\n"
-            // ."|$ss|\n"
-            // .mb_strlen($ss)."\n"
-            // ."$html\n"
-            // .mb_strlen($html)."\n"
-            // .mb_strlen($t));
 
 
             $hl += mb_strlen($html) - mb_strlen($t);
@@ -366,9 +343,9 @@ class Row {
             $t = str_repeat(' ', $s[0]) . $s[3];
 
             $this->dump .= "\n----\n|$s[3]|\n$s[4]";
-            $this->dump .= sprintf("      %6s %6s,%-6s %6s | ws=%d, t_l=%d", $s[5], $s[0], $s[1], $s[2], $s[6], $s[7]);
+            $this->dump .= sprintf("      %6s %6s,%-6s %6s | ws=%d, t_l=%d", $s[5], $s[0], $s[1], $s[2], $s[6] ?? '_', $s[7] ?? '_');
 
-            $this->dump .= righello() . "|$s[8]|" . "\n|{$t}|" . pidx($s[0],"pf") . pidx($s[1],"pl") . "\n";
+            $this->dump .= righello() . "|" . ($s[8] ?? '_') . "|" . "\n|{$t}|" . pidx($s[0],"pf") . pidx($s[1],"pl") . "\n";
         }
         $this->dump .= $msg . "\n";
 
@@ -401,7 +378,7 @@ class Row {
             $this->slices[$fp][] = $ws;
             $this->slices[$fp][] = $t_l;
             
-            if($ws >= 0) $t .= str_repeat('.', $ws);
+            if($ws >= 0) $t .= str_repeat(' ', $ws);
             else $this->dump("[ws < 0]: ws=$ws, pf=$s[0], tl=$t_l ($g)");
             
             $t .= $s[3];

@@ -64,11 +64,11 @@ function event_to_html($e, &$isH) {
 
     if($type === "goal") {
         if($subtype === "normal") {
-            $t = '<span class="goal"> </span>';
+            $t = '<span class="goal">  </span>';
         } else
         if($subtype === "own") {
             $isH = !$isH;
-            $t = '<span class="own-goal"> </span>';
+            $t = '<span class="own-goal">  </span>';
         }
     }
     if($type === "booking") {
@@ -83,6 +83,85 @@ function event_to_html($e, &$isH) {
         }
     }
     return $t;
+}
+
+function event_minute($row, $e, $i = 0) {
+    
+    if($e['minute'] !== null) {
+        $m = $e['minute']."'";
+        $row3->rel($m, $i, 'italic');
+    }
+}
+
+function event2text($e, &$l, $minute_right = true) {
+    $l=0;
+
+    $e_html = event_to_html($e, $isH);
+
+    $m = $e['minute'] !== null ? $e['minute']."'" : false;
+
+    if($m) {
+        $m = "<span class=\"italic\">$m</span>";
+        $l = 6;
+    } else {
+        $l = 2;
+    }
+    
+    if($minute_right) {
+        return $e_html . $m;
+    }
+    else {
+        $l *= -1;
+        return $m . $e_html;
+    }
+}
+
+function short_name($name) {
+    preg_match_all("/([A-Z])/", $name, $matches);
+    if(isset($matches[0])) {
+        return implode('', $matches[0]);
+    }
+    else {
+        return substr($name, 0, 3) . '.';
+    }
+}
+
+function event_print($row, $e, &$isH, $i = 0, $minute_right = true) {
+    $e_html = event_to_html($e, $isH);
+
+    $m = $e['minute'] !== null ? $e['minute']."'" : false;
+
+    if($minute_right) {
+        $t1 = $e_html;
+        $t2 = $m;
+    } else {
+        $t1 = $m;
+        $t2 = $e_html;
+    }
+
+    $row->rel($t1, $i);
+    $i = $i < 0 ? "back" : 0;
+    $row->rel($t2, 0);
+}
+
+function rows_gen($n) {
+    $rows = [];
+    for($i=$n; $i > 0; --$i) {
+        $rows[] = new Row();
+    }
+    return $rows;
+}
+
+function rows_print($board, $rows) {
+    foreach ($rows as $row) {
+        $board->printRow($row);
+    }
+}
+
+function rows_setpos(&$rows, $p) {
+    foreach ($rows as &$row) {
+        $row->setPos($p);
+    }
 }
 /*
 

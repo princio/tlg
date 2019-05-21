@@ -58,12 +58,6 @@ $evt_sel = $new->prepare($sql);
 $evt_sel->execute([ $page_id ]);
 $evts = $evt_sel->fetchAll(PDO::FETCH_ASSOC);
 
-/*monoopen("double");
-emono("%20s", $fix['home'].sprintf("  %2s", $fix['home_goals']), [ "class" => "" ]);
-ews(3);
-emono("%-20s", sprintf("%2s  ", $fix['away_goals']).'  '.$fix['away'], [ "class" => "bold" ]);
-monoclose();*/
-
 $board = new Board();
 
 $row = new Row("double");
@@ -89,14 +83,16 @@ foreach ($evts as $e) {
     $row->setPos(39);
 
     if($isH) {
-        $row->rel($e["minute"].'\'', ["back", 3], "italic");
-        $row->rel($ee, [ "back", -2 ]);
+        $row->rel(event2text($e, $l), ["back", $l]);
+        // $row->rel($ee, [ "back", -2 ]);
         $row->rel("{$a['name']} {$a['surname']}", -1);
     }
-    $row->abs("| ·· |", 40);
+    $row->abs("  ··  ", 40);
     if(!$isH) {
-        $row->rel($e["minute"].'\'', [0, -3], "italic");
-        $row->rel($ee, [0, 1]);
+        // $row->rel(event_minute($e), [0, -3], "italic");
+        $row->rel(event2text($e, $l, false), [0, $l]);
+
+        // $row->rel($ee, [0, 1]);
         $row->rel("{$a['name']} {$a['surname']}", 1);
     }
     $board->printRow($row);
@@ -127,9 +123,12 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
         $row2->rel($ha[$i]['surname']);
         $a = $apps[$ha[$i]['id']];
         if(array_key_exists('evts', $a)) {
-            $row3->setPos(2);
+            $row3->setPos(1);
             foreach ($apps[$ha[$i]['id']]['evts'] as $e) {
-                $row3->rel(event_to_html($e, $null));
+                $row3->rel(event2text($e, $l), 1);
+                // event_print($row, $e, $null, 1);
+                // $row3->rel(event_to_html($e, $null), 1);
+                // $row3->rel($e['minute'].'\'', 0, 'italic');
             }
         }
     }
@@ -142,8 +141,13 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
             // $j = count($es) - 1;
             // $row3->abs(event_to_html($es[$j], $null));
             for ($j=0; $j < count($es); $j++) {
-                $row3->rel($es[$j]['minute'], -1, 'italic');
-                $row3->rel(event_to_html($es[$j], $null), -1, '');
+                $e = $es[$j];
+
+                $row3->rel(event2text($e, $l, false), -1);
+
+                // event_print($row, event2text($es[$j], false), $null, -1);
+                // $row3->rel(event_to_html($es[$j], $null), -1, '');
+                // $row3->rel(event_minute($e), "back", 'italic');
             }
         }
         $row1->abs($aa[$i]['name'], "lp");
