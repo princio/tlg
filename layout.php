@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<link
+	href="/style2.css"
+	rel="stylesheet">
+	<link
 	href="/style.css"
 	rel="stylesheet">
     <title>Document</title>
@@ -13,14 +16,14 @@
     </style>
 </head>
 <body>
-<?php $board = new Board(); ?>
+<?php $board = new BoardMS(); ?>
 <div class="cover">
     <div class="cover-content"><span class="cover-title"><?php
     $title = "T  o  r  n  e  o    d  e  l  l  e    G  r  a  z  i  e";
     //dump(strlen($title));
     //dump(88 - strlen($title));
     $board->ww();
-    $board->printRow(Row::Fast($title, (88 - strlen($title)) >> 1));
+    $board->printRow(RowMS::Fast($title, (88 - strlen($title)) >> 1));
     ?></span><span class="cover-text"><?php
     $links_name = explode(',', "Home,Calendario,Gironi,Albo d'oro");
     $links = explode(',', "/,/calendar/11,/groups/11,/albo/11" );
@@ -30,15 +33,12 @@
         $link .= sprintf("<a href=\"%s\">%s</a> | ", $links[$i], $links_name[$i]);
     }
     $link = substr($link, 0, -3);
-    $board->printRow(Row::Fast($link, (88 - Board::notHtmlLen($link)) >> 1));
+    $board->printRow(RowMS::Fast($link, (88 - BoardMS::notHtmlLen($link)) >> 1));
     ?></span>
     </div>
 </div>
-<div class="board">
-    <?php echo $body; ?>
-</div>
 
-</div>
+<?php echo $body; ?>
 
 <div id="dumps" style="z-index: -1; position: absolute; left:0px; top: 100px;">
 </div>

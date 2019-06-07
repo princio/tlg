@@ -61,17 +61,15 @@ $evts = $evt_sel->fetchAll(PDO::FETCH_ASSOC);
 $board = new Board();
 
 $row = new Row("double");
-$row->abs($fix['home'], 0, "bold");
-$row->abs($fix['away'], "lp", "bold");
+$row->abs($fix['home'], 0, null, "bold");
+$row->abs($fix['away'], "lp", null, "bold");
 $board->printRow($row);
-$board->ww(2);
 $row = new Row("double");
 $of = 18;
-$row->abs($fix['home_goals'], $of, "bold");
-$row->abs("-", 21, "bold");
-$row->abs($fix['away_goals'], -43+$of, "bold");
+$row->abs($fix['home_goals'], 350, null, "bold");
+$row->abs("-", 435, "bold");
+$row->abs($fix['away_goals'], 880-350, null, "bold");
 $board->printRow($row);
-$board->ww(2);
 $board->printRow(Row::Fast(wc('_', 70), 9));
 
 
@@ -80,20 +78,17 @@ foreach ($evts as $e) {
     $a = $apps[$e['app_id']];
     $isH = $a['team_id'] === $fix['home_team_id'];
     $ee = event_to_html($e, $isH);
-    $row->setPos(39);
 
     if($isH) {
-        $row->rel(event2text($e, $l), ["back", $l]);
-        // $row->rel($ee, [ "back", -2 ]);
-        $row->rel("{$a['name']} {$a['surname']}", -1);
+        $row->rel("{$a['name']} {$a['surname']}", -200);
+        $row->rel(event2text($e, $l), 0);
     }
-    $row->abs("  ··  ", 40);
+    $row->abs("  ··  ", 440);
     if(!$isH) {
-        // $row->rel(event_minute($e), [0, -3], "italic");
-        $row->rel(event2text($e, $l, false), [0, $l]);
+        $row->rel(event2text($e, $l, false), 80);
 
         // $row->rel($ee, [0, 1]);
-        $row->rel("{$a['name']} {$a['surname']}", 1);
+        $row->rel("{$a['name']} {$a['surname']}", 20);
     }
     $board->printRow($row);
 
@@ -106,8 +101,6 @@ foreach ($evts as $e) {
 }
 
 $board->printRow(Row::Fast(wc('‾', 70), 9));
-
-$board->ww(5);
 
 $ha = array_values($ha);
 $aa = array_values($aa);
@@ -156,7 +149,8 @@ for ($i = 0; $i < max(count($ha), count($aa)); $i++) {
     $board->printRow($row1);
     $board->printRow($row2);
     $board->printRow($row3);
-    $board->ww(2);
 }
+
+$board->print();
 
 ?>

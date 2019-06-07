@@ -2,7 +2,8 @@
 
 require_once './dumper/autoload.php';
 require_once './utils.php';
-
+require_once './Board.php';
+require_once './BoardMS.php';
 
 preg_match('~/(\w+)/(\w+)?~', $_SERVER['REQUEST_URI'], $ms);
 
